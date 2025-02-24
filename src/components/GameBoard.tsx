@@ -15,9 +15,17 @@ const winPatterns = [
 type Props = {
   player1Char: string;
   player2Char: string;
+  // Callbacks for changing symbol or going to main menu.
+  onChangeSymbol?: () => void;
+  onMainMenu?: () => void;
 };
 
-export const GameBoard = ({ player1Char, player2Char }: Props) => {
+export const GameBoard = ({
+  player1Char,
+  player2Char,
+  onChangeSymbol,
+  onMainMenu,
+}: Props) => {
   // The board is represented as an array of 9 cells.
   // Each cell is either null, "P1", or "P2".
   const [board, setBoard] = useState<Array<"P1" | "P2" | null>>(
@@ -30,6 +38,8 @@ export const GameBoard = ({ player1Char, player2Char }: Props) => {
   const [currentTurn, setCurrentTurn] = useState<"P1" | "P2">("P1");
   // Winner message (if any).
   const [winner, setWinner] = useState<string | null>(null);
+  // Control for showing the play again prompt.
+  const [showPrompt, setShowPrompt] = useState(false);
 
   // Check if the given three cell indices form a winning combination.
   const checkWin = (moves: number[]): boolean => {
@@ -43,38 +53,35 @@ export const GameBoard = ({ player1Char, player2Char }: Props) => {
     if (winner) return; // If the game is over, do nothing.
     if (board[index] !== null) return; // Do not allow moves in occupied cells.
 
-    // Create a copy of the board and mark the new move.
     const newBoard = [...board];
 
     if (currentTurn === "P1") {
-      let newMoves = [...player1Moves];
+      const newMoves = [...player1Moves];
+      // If already three markers, remove the oldest before adding the new one.
       if (newMoves.length === 3) {
         newBoard[newMoves[0]] = null;
         newMoves.shift();
       }
-
+      // Place the new move.
       newBoard[index] = "P1";
       newMoves.push(index);
-
+      // Check for win after update.
       if (newMoves.length === 3 && checkWin(newMoves)) {
-        setWinner("Player 1 Wins!");
+        setWinner("Player 1 wins!");
         setBoard(newBoard);
         return;
       }
       setPlayer1Moves(newMoves);
     } else {
-      let newMoves = [...player2Moves];
-
+      const newMoves = [...player2Moves];
       if (newMoves.length === 3) {
         newBoard[newMoves[0]] = null;
         newMoves.shift();
       }
-
       newBoard[index] = "P2";
       newMoves.push(index);
-
       if (newMoves.length === 3 && checkWin(newMoves)) {
-        setWinner("Player 2 Wins!");
+        setWinner("Player 2 wins!");
         setBoard(newBoard);
         return;
       }
@@ -87,7 +94,7 @@ export const GameBoard = ({ player1Char, player2Char }: Props) => {
   };
 
   // Render a single cell. If it's occupied, display the player's symbol.
-  // Also, if it's the oldest move for the current player, add a highlight.
+  // Also, if it's the current player's turn and they have 3 moves, highlight the oldest move.
   const renderCell = (index: number) => {
     let cellContent = "";
     let highlight = false;
@@ -114,7 +121,7 @@ export const GameBoard = ({ player1Char, player2Char }: Props) => {
       <div
         key={index}
         onClick={() => handleCellClick(index)}
-        className={`w-20 h-20 border flex items-center justify-center text-3xl cursor-pointer ${
+        className={`md:w-32 md:h-32 w-20 h-20 border-4 border-gray-400 flex items-center justify-center text-3xl cursor-pointer ${
           highlight ? "bg-yellow-200" : ""
         }`}
       >
@@ -123,10 +130,33 @@ export const GameBoard = ({ player1Char, player2Char }: Props) => {
     );
   };
 
+  // Reset game state for a rematch.
+  const handleRematch = () => {
+    setBoard(Array(9).fill(null));
+    setPlayer1Moves([]);
+    setPlayer2Moves([]);
+    setWinner(null);
+    setCurrentTurn("P1");
+    setShowPrompt(false);
+  };
+
+  // Called when the user wants to change symbols.
+  const handleChangeSymbol = () => {
+    setShowPrompt(false);
+    // Invoke the callback if provided.
+    if (onChangeSymbol) onChangeSymbol();
+  };
+
+  // Called when the user wants to go back to the main menu.
+  const handleMainMenu = () => {
+    setShowPrompt(false);
+    if (onMainMenu) onMainMenu();
+  };
+
   return (
-    <div className="flex min-h-screen">
+    <div className="relative flex flex-col md:flex-row min-h-screen">
       {/* Left side: Turn indicator */}
-      <div className="w-1/4 p-4 border-r">
+      <div className="w-full md:w-1/4 p-4 border-b md:border-b-0  md:border-r">
         <h2 className="text-xl font-bold mb-2">Current Turn</h2>
         <p>
           {currentTurn === "P1"
@@ -134,19 +164,56 @@ export const GameBoard = ({ player1Char, player2Char }: Props) => {
             : `Player 2 (${player2Char})`}
         </p>
         {winner && <p className="mt-4 text-green-600 font-bold">{winner}</p>}
+        {winner && (
+          <button
+            className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded"
+            onClick={() => setShowPrompt(true)}
+          >
+            Play Again
+          </button>
+        )}
       </div>
       {/* Center: Tic Tac Toe board */}
-      <div className="w-2/4 p-4 flex justify-center items-center">
+      <div className="w-full md:w-2/4 p-4 flex justify-center items-center">
         <div className="grid grid-cols-3 gap-2">
           {Array.from({ length: 9 }).map((_, index) => renderCell(index))}
         </div>
       </div>
       {/* Right side: Additional information (e.g. move history) */}
-      <div className="w-1/4 p-4 border-l">
+      <div className="w-full md:w-1/4 border-t md:border-t-0 p-4 md:border-l">
         <h2 className="text-xl font-bold mb-2">Move History</h2>
         <p>Player 1 moves: {player1Moves.join(", ")}</p>
         <p>Player 2 moves: {player2Moves.join(", ")}</p>
       </div>
+
+      {/* Modal prompt overlay for play again options */}
+      {showPrompt && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded shadow-lg text-center">
+            <h2 className="text-2xl font-bold mb-4">Game Over</h2>
+            <div className="flex flex-col gap-4">
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded"
+                onClick={handleRematch}
+              >
+                Rematch
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={handleChangeSymbol}
+              >
+                Change Symbol
+              </button>
+              <button
+                className="px-4 py-2 bg-gray-500 text-white rounded"
+                onClick={handleMainMenu}
+              >
+                Main Menu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
