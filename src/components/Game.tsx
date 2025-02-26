@@ -1,145 +1,185 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MainMenu } from "./MainMenu";
+import { DifficultySelection } from "./DifficultySelection";
+import { CharacterSelection } from "./CharacterSelection";
+import { Countdown } from "./Countdown";
 import { GameBoard } from "./GameBoard";
+import { SinglePlayerGameBoard } from "./SinglePlayerGameBoard";
+import { ArrowLeft } from "lucide-react";
 
 export const Game = () => {
-  // List of available symbols for players to choose.
   const symbols = ["😀", "😎", "🚀", "🐱", "🔥", "🌟", "🍀"];
-
-  // Game states for character selection and turn indicator.
+  // Phases: "mainMenu", "difficultySelection", "characterSelection", "countdown", "game"
+  const [phase, setPhase] = useState("mainMenu");
+  // Game mode: "multi" or "single"
+  const [gameMode, setGameMode] = useState<"multi" | "single" | null>(null);
+  // For single-player, store the selected difficulty.
+  const [difficulty, setDifficulty] = useState<
+    "easy" | "medium" | "hard" | null
+  >(null);
   const [player1Char, setPlayer1Char] = useState<string | null>(null);
   const [player2Char, setPlayer2Char] = useState<string | null>(null);
-  // Phase: "main Menu", characterSelection", "countdown", "game"
-  const [phase, setPhase] = useState("mainMenu");
-  // Countdown number (starts at 3)
-  const [countdown, setCountdown] = useState(3);
-  // Current turn indicator
 
-  // When both players have chosen, move to countdown phase.
-  useEffect(() => {
-    if (player1Char && player2Char) {
-      setPhase("countdown");
-    }
-  }, [player1Char, player2Char]);
+  // Example: Score or other states could go here...
 
-  // Handle the countdown.
-  useEffect(() => {
-    if (phase === "countdown") {
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev === 1) {
-            clearInterval(timer);
-            setPhase("game");
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [phase]);
-
-  // Handler for Main Menu mode selection.
+  // Mode selection handler.
   const handleModeSelect = (mode: "single" | "multi" | "online") => {
     if (mode === "multi") {
+      setGameMode("multi");
       setPhase("characterSelection");
+    } else if (mode === "single") {
+      setGameMode("single");
+      setPhase("difficultySelection");
     } else {
-      alert("this mode is coming soon!");
+      alert("This mode is coming soon!");
     }
   };
 
-  // Handler for "Change Symbol" action:
-  // Resets the symbols so players can choose new ones.
-  const handleChangeSymbol = () => {
-    setPlayer1Char(null);
-    setPlayer2Char(null);
-    setCountdown(3);
-    setPhase("characterSelection");
+  // Back button handler: set the phase to the previous state.
+  const handleBack = () => {
+    if (phase === "difficultySelection") {
+      // Go back to main menu.
+      setPhase("mainMenu");
+    } else if (phase === "characterSelection") {
+      if (gameMode === "single") {
+        // In single-player, go back to difficulty selection.
+        setPhase("difficultySelection");
+        // Optionally clear the already selected symbol for Player 1.
+        // setPlayer1Char(null);
+      } else {
+        // In multiplayer, go back to main menu.
+        setPhase("mainMenu");
+        // Optionally clear Player 1's symbol.
+        // setPlayer1Char(null);
+      }
+    } else if (phase === "countdown") {
+      // Go back to character selection.
+      setPhase("characterSelection");
+    } else if (phase === "game") {
+      // Depending on your design, you might want to go back to countdown
+      // or directly back to character selection. For this example:
+      setPhase("characterSelection");
+    }
   };
 
-  // Handler for "Main Menu" action:
-  // For now, it resets back to character selection.
-  // You can modify this to navigate to a dedicated main menu if needed.
-  const handleMainMenu = () => {
-    setPlayer1Char(null);
-    setPlayer2Char(null);
-    setCountdown(3);
-    setPhase("mainMenu");
+  // Render a Back button (if not in main menu) at a fixed position.
+  const renderBackButton = () => {
+    if (phase !== "mainMenu") {
+      return (
+        <button
+          onClick={handleBack}
+          className="absolute top-4 left-4 px-4 py-2 bg-gray-200 text-gray-800 text-lg rounded-lg shadow hover:bg-gray-300 flex items-center"
+        >
+          <span>Back</span>
+          <ArrowLeft className="ml-2" />
+        </button>
+      );
+    }
+
+    return null;
   };
 
   // --- Phase Rendering ---
 
-  // Main Menu phase
   if (phase === "mainMenu") {
     return <MainMenu onModeSelect={handleModeSelect} />;
   }
 
-  // Character selection phase.
-  if (phase === "characterSelection") {
-    // If player1 hasn't chosen, prompt Player 1.
-    if (!player1Char) {
-      return (
-        <div className="flex flex-col items-center justify-center h-[70vh]">
-          <h2 className="text-2xl font-semibold mb-4">
-            Player 1: Choose Your Character
-          </h2>
-          <div className="flex gap-4">
-            {symbols.map((symbol, index) => (
-              <button
-                key={index}
-                className="p-4 border rounded hover:bg-gray-200 transition"
-                onClick={() => setPlayer1Char(symbol)}
-              >
-                {symbol}
-              </button>
-            ))}
-          </div>
-        </div>
-      );
-    } else if (!player2Char) {
-      // Else, prompt Player 2 (exclude Player 1's symbol).
-      const availableSymbols = symbols.filter(
-        (symbol) => symbol !== player1Char
-      );
-      return (
-        <div className="flex flex-col items-center justify-center  h-[70vh]">
-          <h2 className="text-2xl font-semibold mb-4">
-            Player 2: Choose Your Character
-          </h2>
-          <div className="flex gap-4">
-            {availableSymbols.map((symbol, index) => (
-              <button
-                key={index}
-                className="p-4 border rounded hover:bg-gray-200 transition"
-                onClick={() => setPlayer2Char(symbol)}
-              >
-                {symbol}
-              </button>
-            ))}
-          </div>
-        </div>
-      );
-    }
-  }
-
-  // Countdown phase.
-  if (phase === "countdown") {
+  if (phase === "difficultySelection") {
     return (
-      <div className="flex flex-col items-center justify-center h-[70vh]">
-        <h2 className="text-3xl font-bold mb-4">Game starts in:</h2>
-        <div className="text-6xl">{countdown}</div>
+      <div className="relative">
+        {renderBackButton()}
+        <DifficultySelection
+          onSelect={(selectedDifficulty) => {
+            setDifficulty(selectedDifficulty);
+            setPhase("characterSelection");
+          }}
+        />
       </div>
     );
   }
 
-  // Game phase.
-  return (
-    <GameBoard
-      player1Char={player1Char!}
-      player2Char={player2Char!}
-      onChangeSymbol={handleChangeSymbol}
-      onMainMenu={handleMainMenu}
-    />
-  );
+  if (phase === "characterSelection") {
+    return (
+      <div className="relative">
+        {renderBackButton()}
+        {!player1Char ? (
+          <CharacterSelection
+            player="Player 1"
+            availableSymbols={symbols}
+            onSelect={(symbol) => setPlayer1Char(symbol)}
+          />
+        ) : !player2Char ? (
+          gameMode === "single" ? (
+            // In single-player, auto-assign bot symbol.
+            (() => {
+              const availableSymbols = symbols.filter((s) => s !== player1Char);
+              setPlayer2Char(availableSymbols[0]);
+              return null;
+            })()
+          ) : (
+            <CharacterSelection
+              player="Player 2"
+              availableSymbols={symbols.filter((s) => s !== player1Char)}
+              onSelect={(symbol) => setPlayer2Char(symbol)}
+            />
+          )
+        ) : (
+          <Countdown initialCount={3} onComplete={() => setPhase("game")} />
+        )}
+      </div>
+    );
+  }
+
+  if (phase === "countdown") {
+    return (
+      <div className="relative">
+        {renderBackButton()}
+        <Countdown initialCount={3} onComplete={() => setPhase("game")} />
+      </div>
+    );
+  }
+
+  if (phase === "game") {
+    return (
+      <div className="relative">
+        {renderBackButton()}
+        {gameMode === "multi" ? (
+          <GameBoard
+            player1Char={player1Char!}
+            player2Char={player2Char!}
+            onChangeSymbol={() => {
+              setPlayer1Char(null);
+              setPlayer2Char(null);
+              setPhase("characterSelection");
+            }}
+            onMainMenu={() => {
+              setPlayer1Char(null);
+              setPlayer2Char(null);
+              setPhase("mainMenu");
+            }}
+          />
+        ) : (
+          <SinglePlayerGameBoard
+            humanChar={player1Char!}
+            botChar={player2Char!}
+            difficulty={difficulty!}
+            onChangeSymbol={() => {
+              setPlayer1Char(null);
+              setPlayer2Char(null);
+              setPhase("characterSelection");
+            }}
+            onMainMenu={() => {
+              setPlayer1Char(null);
+              setPlayer2Char(null);
+              setPhase("mainMenu");
+            }}
+          />
+        )}
+      </div>
+    );
+  }
+
+  return null;
 };
