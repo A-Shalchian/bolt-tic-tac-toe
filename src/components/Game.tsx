@@ -3,6 +3,8 @@ import { useState } from "react";
 import { MainMenu } from "./MainMenu";
 import { DifficultySelection } from "./DifficultySelection";
 import { CharacterSelection } from "./CharacterSelection";
+import { TimeSetting } from "./TimeSetting";
+import { TimeOptionSelection } from "./TimeOptionSelection";
 import { Countdown } from "./Countdown";
 import { GameBoard } from "./GameBoard";
 import { SinglePlayerGameBoard } from "./SinglePlayerGameBoard";
@@ -10,10 +12,12 @@ import { ArrowLeft } from "lucide-react";
 
 export const Game = () => {
   const symbols = ["😀", "😎", "🚀", "🐱", "🔥", "🌟", "🍀"];
-  // Phases: "mainMenu", "difficultySelection", "characterSelection", "countdown", "game"
+  // Phases: "mainMenu", "timeOptionSelection", "timeSettings", "difficultySelection", "characterSelection", "countdown", "game"
   const [phase, setPhase] = useState("mainMenu");
   // Game mode: "multi" or "single"
   const [gameMode, setGameMode] = useState<"multi" | "single" | null>(null);
+  // For multiplayer, store whether the game is timed.
+  const [multiplayerTimer, setMultiplayerTimer] = useState<number>(0);
   // For single-player, store the selected difficulty.
   const [difficulty, setDifficulty] = useState<
     "easy" | "medium" | "hard" | null
@@ -27,7 +31,7 @@ export const Game = () => {
   const handleModeSelect = (mode: "single" | "multi" | "online") => {
     if (mode === "multi") {
       setGameMode("multi");
-      setPhase("characterSelection");
+      setPhase("timeOptionSelection");
     } else if (mode === "single") {
       setGameMode("single");
       setPhase("difficultySelection");
@@ -84,6 +88,32 @@ export const Game = () => {
 
   if (phase === "mainMenu") {
     return <MainMenu onModeSelect={handleModeSelect} />;
+  }
+
+  if (phase === "timeOptionSelection") {
+    return (
+      <TimeOptionSelection
+        onSelect={(timed) => {
+          if (timed) {
+            setPhase("timeSettings");
+          } else {
+            setMultiplayerTimer(0);
+            setPhase("characterSelection");
+          }
+        }}
+      />
+    );
+  }
+
+  if (phase === "timeSettings") {
+    return (
+      <TimeSetting
+        onSelect={(time) => {
+          setMultiplayerTimer(time);
+          setPhase("characterSelection");
+        }}
+      />
+    );
   }
 
   if (phase === "difficultySelection") {
@@ -149,6 +179,8 @@ export const Game = () => {
           <GameBoard
             player1Char={player1Char!}
             player2Char={player2Char!}
+            timed={multiplayerTimer > 0}
+            timeLimit={multiplayerTimer}
             onChangeSymbol={() => {
               setPlayer1Char(null);
               setPlayer2Char(null);

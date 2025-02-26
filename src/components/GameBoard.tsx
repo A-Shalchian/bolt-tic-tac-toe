@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Standard win patterns for a 3x3 tic tac toe board.
 const winPatterns = [
@@ -18,6 +18,8 @@ type Props = {
   // Callbacks for changing symbol or going to main menu.
   onChangeSymbol?: () => void;
   onMainMenu?: () => void;
+  timed?: boolean;
+  timeLimit?: number;
 };
 
 export const GameBoard = ({
@@ -25,6 +27,8 @@ export const GameBoard = ({
   player2Char,
   onChangeSymbol,
   onMainMenu,
+  timed = false,
+  timeLimit = 0,
 }: Props) => {
   // The board is represented as an array of 9 cells.
   // Each cell is either null, "P1", or "P2".
@@ -40,6 +44,32 @@ export const GameBoard = ({
   const [winner, setWinner] = useState<string | null>(null);
   // Control for showing the play again prompt.
   const [showPrompt, setShowPrompt] = useState(false);
+  const [turnTimer, setTurnTimer] = useState<number>(timed ? timeLimit : 0);
+
+  // Whenever the turn changes, reset the timer (if timed).
+  useEffect(() => {
+    if (timed) {
+      setTurnTimer(timeLimit);
+    }
+  }, [currentTurn, timed, timeLimit]);
+
+  // If the game is timed, decrement the timer every second.
+  useEffect(() => {
+    if (timed && !winner) {
+      const timerId = setInterval(() => {
+        setTurnTimer((prev) => {
+          if (prev === 1) {
+            clearInterval(timerId);
+            // Time expired; switch turns.
+            setCurrentTurn(currentTurn === "P1" ? "P2" : "P1");
+            return timeLimit;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timerId);
+    }
+  }, [timed, winner, currentTurn, timeLimit]);
 
   // Check if the given three cell indices form a winning combination.
   const checkWin = (moves: number[]): boolean => {
@@ -155,14 +185,19 @@ export const GameBoard = ({
 
   return (
     <div className="relative flex flex-col md:flex-row min-h-screen">
-      {/* Left side: Turn indicator */}
-      <div className="w-full md:w-1/4 p-4 border-b md:border-b-0  md:border-r">
+      {/* Left side: Turn indicator and Timer */}
+      <div className="w-full md:w-1/4 p-4 border-b md:border-b-0 md:border-r">
         <h2 className="text-xl font-bold mb-2">Current Turn</h2>
         <p>
           {currentTurn === "P1"
             ? `Player 1 (${player1Char})`
             : `Player 2 (${player2Char})`}
         </p>
+        {timed && (
+          <p className="mt-2 text-red-500">
+            Time left: {turnTimer} second{turnTimer !== 1 && "s"}
+          </p>
+        )}
         {winner && <p className="mt-4 text-green-600 font-bold">{winner}</p>}
         {winner && (
           <button
@@ -179,8 +214,8 @@ export const GameBoard = ({
           {Array.from({ length: 9 }).map((_, index) => renderCell(index))}
         </div>
       </div>
-      {/* Right side: Additional information (e.g. move history) */}
-      <div className="w-full md:w-1/4 border-t md:border-t-0 p-4 md:border-l">
+      {/* Right side: Additional information (e.g., move history) */}
+      <div className="w-full md:w-1/4 p-4 border-t md:border-t-0 md:border-l">
         <h2 className="text-xl font-bold mb-2">Move History</h2>
         <p>Player 1 moves: {player1Moves.join(", ")}</p>
         <p>Player 2 moves: {player2Moves.join(", ")}</p>
