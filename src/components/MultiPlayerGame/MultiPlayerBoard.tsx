@@ -1,66 +1,59 @@
-import { useState, useEffect } from "react";
+"use client";
+import React, { useState, useEffect } from "react";
+import { SurrenderButton } from "../buttons/SurrenderButton";
+import { checkWin } from "@/utils/botLogic";
 
-// Standard win patterns for a 3x3 tic tac toe board.
-const winPatterns = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
+type Cell = "P1" | "P2" | null;
 
-type Props = {
+type MultiPlayerBoardProps = {
+  timed: boolean;
+  timeLimit: number;
   player1Char: string;
   player2Char: string;
-  // Callbacks for changing symbol or going to main menu.
-  onChangeSymbol?: () => void;
-  onMainMenu?: () => void;
-  timed?: boolean;
-  timeLimit?: number;
 };
 
-export const GameBoard = ({
+/**
+ * MultiPlayerBoard:
+ * - Two human players (P1 and P2).
+ * - Sliding mechanic (3 markers max).
+ * - Optional timer per turn if `timed` is true.
+ * - Surrender button: whichever player's turn it is, the other player wins.
+ */
+export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
+  timed,
+  timeLimit,
   player1Char,
   player2Char,
-  onChangeSymbol,
-  onMainMenu,
-  timed = false,
-  timeLimit = 0,
-}: Props) => {
-  // The board is represented as an array of 9 cells.
-  // Each cell is either null, "P1", or "P2".
-  const [board, setBoard] = useState<Array<"P1" | "P2" | null>>(
-    Array(9).fill(null)
-  );
-  // Keep track of the move history (order of cell indices) for each player.
+}) => {
+  // 9 cells, each either "P1", "P2", or null
+  const [board, setBoard] = useState<Cell[]>(Array(9).fill(null));
+  // Move histories
   const [player1Moves, setPlayer1Moves] = useState<number[]>([]);
   const [player2Moves, setPlayer2Moves] = useState<number[]>([]);
-  // Whose turn it is: "P1" or "P2".
+  // Turn
   const [currentTurn, setCurrentTurn] = useState<"P1" | "P2">("P1");
-  // Winner message (if any).
+  // Winner message
   const [winner, setWinner] = useState<string | null>(null);
-  // Control for showing the play again prompt.
+  // Show prompt for rematch
   const [showPrompt, setShowPrompt] = useState(false);
+  // Timer
   const [turnTimer, setTurnTimer] = useState<number>(timed ? timeLimit : 0);
 
-  // Whenever the turn changes, reset the timer (if timed).
+  // Reset timer on turn change
   useEffect(() => {
     if (timed) {
       setTurnTimer(timeLimit);
     }
   }, [currentTurn, timed, timeLimit]);
 
-  // If the game is timed, decrement the timer every second.
+  // Timer countdown effect
   useEffect(() => {
     if (timed && !winner) {
       const timerId = setInterval(() => {
         setTurnTimer((prev) => {
           if (prev === 1) {
             clearInterval(timerId);
-            // Time expired; switch turns.
+            // Time's up => switch turn
             setCurrentTurn(currentTurn === "P1" ? "P2" : "P1");
             return timeLimit;
           }
@@ -71,32 +64,27 @@ export const GameBoard = ({
     }
   }, [timed, winner, currentTurn, timeLimit]);
 
-  // Check if the given three cell indices form a winning combination.
-  const checkWin = (moves: number[]): boolean => {
-    return winPatterns.some((pattern) =>
-      pattern.every((cell) => moves.includes(cell))
-    );
+  // Check for win with sliding mechanic
+  const checkForWin = (moves: number[]): boolean => {
+    if (moves.length < 3) return false;
+    return checkWin(moves);
   };
 
-  // Handler when a cell is clicked.
+  // Handle cell click
   const handleCellClick = (index: number) => {
-    if (winner) return; // If the game is over, do nothing.
-    if (board[index] !== null) return; // Do not allow moves in occupied cells.
+    if (winner) return;
+    if (board[index] !== null) return;
 
     const newBoard = [...board];
-
     if (currentTurn === "P1") {
       const newMoves = [...player1Moves];
-      // If already three markers, remove the oldest before adding the new one.
       if (newMoves.length === 3) {
         newBoard[newMoves[0]] = null;
         newMoves.shift();
       }
-      // Place the new move.
       newBoard[index] = "P1";
       newMoves.push(index);
-      // Check for win after update.
-      if (newMoves.length === 3 && checkWin(newMoves)) {
+      if (newMoves.length === 3 && checkForWin(newMoves)) {
         setWinner("Player 1 wins!");
         setBoard(newBoard);
         return;
@@ -110,7 +98,7 @@ export const GameBoard = ({
       }
       newBoard[index] = "P2";
       newMoves.push(index);
-      if (newMoves.length === 3 && checkWin(newMoves)) {
+      if (newMoves.length === 3 && checkForWin(newMoves)) {
         setWinner("Player 2 wins!");
         setBoard(newBoard);
         return;
@@ -119,48 +107,20 @@ export const GameBoard = ({
     }
 
     setBoard(newBoard);
-    // Switch turns.
     setCurrentTurn(currentTurn === "P1" ? "P2" : "P1");
   };
 
-  // Render a single cell. If it's occupied, display the player's symbol.
-  // Also, if it's the current player's turn and they have 3 moves, highlight the oldest move.
-  const renderCell = (index: number) => {
-    let cellContent = "";
-    let highlight = false;
-    if (board[index] === "P1") {
-      cellContent = player1Char;
-      if (
-        currentTurn === "P1" &&
-        player1Moves.length === 3 &&
-        player1Moves[0] === index
-      ) {
-        highlight = true;
-      }
-    } else if (board[index] === "P2") {
-      cellContent = player2Char;
-      if (
-        currentTurn === "P2" &&
-        player2Moves.length === 3 &&
-        player2Moves[0] === index
-      ) {
-        highlight = true;
-      }
+  // Surrender
+  const handleSurrender = () => {
+    if (winner) return;
+    if (currentTurn === "P1") {
+      setWinner("Player 2 wins by surrender!");
+    } else {
+      setWinner("Player 1 wins by surrender!");
     }
-    return (
-      <div
-        key={index}
-        onClick={() => handleCellClick(index)}
-        className={`md:w-32 md:h-32 w-20 h-20 border-4 border-gray-400 flex items-center justify-center text-3xl cursor-pointer ${
-          highlight ? "bg-yellow-200" : ""
-        }`}
-      >
-        {cellContent}
-      </div>
-    );
   };
 
-  // Reset game state for a rematch.
+  // Reset game
   const handleRematch = () => {
     setBoard(Array(9).fill(null));
     setPlayer1Moves([]);
@@ -170,35 +130,70 @@ export const GameBoard = ({
     setShowPrompt(false);
   };
 
-  // Called when the user wants to change symbols.
-  const handleChangeSymbol = () => {
-    setShowPrompt(false);
-    // Invoke the callback if provided.
-    if (onChangeSymbol) onChangeSymbol();
-  };
+  // Render cell
+  const renderCell = (index: number) => {
+    let content = "";
+    let highlight = false;
+    if (board[index] === "P1") {
+      content = player1Char;
+      if (
+        currentTurn === "P1" &&
+        player1Moves.length === 3 &&
+        player1Moves[0] === index
+      ) {
+        highlight = true;
+      }
+    } else if (board[index] === "P2") {
+      content = player2Char;
+      if (
+        currentTurn === "P2" &&
+        player2Moves.length === 3 &&
+        player2Moves[0] === index
+      ) {
+        highlight = true;
+      }
+    }
 
-  // Called when the user wants to go back to the main menu.
-  const handleMainMenu = () => {
-    setShowPrompt(false);
-    if (onMainMenu) onMainMenu();
+    return (
+      <div
+        key={index}
+        onClick={() => handleCellClick(index)}
+        className={`w-20 h-20 md:w-32 md:h-32 border-4 border-gray-400 flex items-center justify-center text-3xl cursor-pointer ${
+          highlight ? "bg-yellow-200" : ""
+        }`}
+      >
+        {content}
+      </div>
+    );
   };
 
   return (
     <div className="relative flex flex-col md:flex-row min-h-screen">
-      {/* Left side: Turn indicator and Timer */}
+      {/* Surrender Button (top-right, high z-index) */}
+      <div className="absolute top-4 right-4 z-50">
+        <SurrenderButton onClick={handleSurrender} />
+      </div>
+
+      {/* Left panel: Turn info */}
       <div className="w-full md:w-1/4 p-4 border-b md:border-b-0 md:border-r">
-        <h2 className="text-xl font-bold mb-2">Current Turn</h2>
-        <p>
-          {currentTurn === "P1"
-            ? `Player 1 (${player1Char})`
-            : `Player 2 (${player2Char})`}
-        </p>
-        {timed && (
-          <p className="mt-2 text-red-500">
-            Time left: {turnTimer} second{turnTimer !== 1 && "s"}
-          </p>
+        <h2 className="text-xl font-bold mb-2">Multiplayer</h2>
+        {!winner ? (
+          <>
+            <p>
+              Current Turn:{" "}
+              {currentTurn === "P1"
+                ? `Player 1 (${player1Char})`
+                : `Player 2 (${player2Char})`}
+            </p>
+            {timed && (
+              <p className="mt-2 text-red-500">
+                Time left: {turnTimer} second{turnTimer !== 1 && "s"}
+              </p>
+            )}
+          </>
+        ) : (
+          <p className="mt-2 text-green-600 font-bold">{winner}</p>
         )}
-        {winner && <p className="mt-4 text-green-600 font-bold">{winner}</p>}
         {winner && (
           <button
             className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded"
@@ -208,20 +203,22 @@ export const GameBoard = ({
           </button>
         )}
       </div>
-      {/* Center: Tic Tac Toe board */}
+
+      {/* Center: Board */}
       <div className="w-full md:w-2/4 p-4 flex justify-center items-center">
         <div className="grid grid-cols-3 gap-2">
-          {Array.from({ length: 9 }).map((_, index) => renderCell(index))}
+          {Array.from({ length: 9 }).map((_, i) => renderCell(i))}
         </div>
       </div>
-      {/* Right side: Additional information (e.g., move history) */}
+
+      {/* Right panel: Move history */}
       <div className="w-full md:w-1/4 p-4 border-t md:border-t-0 md:border-l">
         <h2 className="text-xl font-bold mb-2">Move History</h2>
         <p>Player 1 moves: {player1Moves.join(", ")}</p>
         <p>Player 2 moves: {player2Moves.join(", ")}</p>
       </div>
 
-      {/* Modal prompt overlay for play again options */}
+      {/* Modal: Play Again */}
       {showPrompt && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-8 rounded shadow-lg text-center">
@@ -234,16 +231,10 @@ export const GameBoard = ({
                 Rematch
               </button>
               <button
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-                onClick={handleChangeSymbol}
-              >
-                Change Symbol
-              </button>
-              <button
                 className="px-4 py-2 bg-gray-500 text-white rounded"
-                onClick={handleMainMenu}
+                onClick={() => window.location.reload()}
               >
-                Main Menu
+                Quit
               </button>
             </div>
           </div>
