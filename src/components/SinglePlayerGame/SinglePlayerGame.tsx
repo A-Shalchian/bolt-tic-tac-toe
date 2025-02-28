@@ -1,65 +1,111 @@
 "use client";
-import { useState } from "react";
+import React from "react";
+import { useGameContext } from "@/context/GameContext";
+import { BackButton } from "../buttons/BackButton";
 import { DifficultySelection } from "../DifficultySelection";
 import { SinglePlayerCharacterSelection } from "./SinglePlayerCharacterSelection";
 import { Countdown } from "../Countdown";
 import { SinglePlayerBoard } from "./SinglePlayerBoard";
 
 export const SinglePlayerGame = () => {
-  const [difficulty, setDifficulty] = useState<
-    "easy" | "medium" | "hard" | null
-  >(null);
-  const [playerChar, setPlayerChar] = useState<string | null>(null);
-  const [botChar, setBotChar] = useState<string | null>(null);
-  const [phase, setPhase] = useState<
-    "difficulty" | "charSelect" | "countdown" | "board"
-  >("difficulty");
+  const {
+    phase,
+    setPhase,
+    difficulty,
+    setDifficulty,
+    player1Char,
+    setPlayer1Char,
+    player2Char,
+    setPlayer2Char,
+  } = useGameContext();
 
   const symbols = ["😀", "😎", "🚀", "🐱", "🔥", "🌟", "🍀"];
 
-  // 1. Difficulty
-  if (phase === "difficulty") {
+  // Render a BackButton in the top-left corner for every phase except maybe "mainMenu".
+  // Or conditionally if you prefer.
+  const renderBackButton = () => {
+    // Example: If you're in "difficultySelection", back goes to "mainMenu"
+    // If you're in "characterSelection", back goes to "difficultySelection"
+    // etc.  We'll do a simple approach:
+    if (phase !== "mainMenu") {
+      return (
+        <div className="absolute top-4 left-4 z-50">
+          <BackButton
+            onClick={() => {
+              if (phase === "difficultySelection") {
+                setPhase("mainMenu");
+              } else if (phase === "characterSelection") {
+                setPhase("difficultySelection");
+              } else if (phase === "countdown") {
+                setPhase("characterSelection");
+              } else if (phase === "game") {
+                setPhase("characterSelection");
+              }
+            }}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Phase: difficultySelection
+  if (phase === "difficultySelection") {
     return (
-      <DifficultySelection
-        onSelect={(diff) => {
-          setDifficulty(diff);
-          setPhase("charSelect");
-        }}
-      />
+      <div className="relative">
+        {renderBackButton()}
+        <DifficultySelection
+          onSelect={(diff) => {
+            setDifficulty(diff);
+            setPhase("characterSelection");
+          }}
+        />
+      </div>
     );
   }
 
-  // 2. Character Selection
-  if (phase === "charSelect") {
+  // Phase: characterSelection
+  if (phase === "characterSelection") {
     return (
-      <SinglePlayerCharacterSelection
-        symbols={symbols}
-        onPlayerSelect={(char) => {
-          setPlayerChar(char);
-          // auto-assign bot symbol
-          const botSymbol = symbols.find((s) => s !== char) || "😎";
-          setBotChar(botSymbol);
-          setPhase("countdown");
-        }}
-      />
+      <div className="relative">
+        {renderBackButton()}
+        <SinglePlayerCharacterSelection
+          symbols={symbols}
+          onPlayerSelect={(char) => {
+            setPlayer1Char(char);
+            const botSymbol = symbols.find((s) => s !== char) || "😎";
+            setPlayer2Char(botSymbol);
+            setPhase("countdown");
+          }}
+        />
+      </div>
     );
   }
 
-  // 3. Countdown
+  // Phase: countdown
   if (phase === "countdown") {
-    return <Countdown initialCount={3} onComplete={() => setPhase("board")} />;
-  }
-
-  // 4. Board
-  if (phase === "board") {
     return (
-      <SinglePlayerBoard
-        difficulty={difficulty!}
-        playerChar={playerChar!}
-        botChar={botChar!}
-      />
+      <div className="relative">
+        {renderBackButton()}
+        <Countdown initialCount={3} onComplete={() => setPhase("game")} />
+      </div>
     );
   }
 
+  // Phase: game
+  if (phase === "game") {
+    return (
+      <div className="relative">
+        {renderBackButton()}
+        <SinglePlayerBoard
+          difficulty={difficulty!}
+          playerChar={player1Char!}
+          botChar={player2Char!}
+        />
+      </div>
+    );
+  }
+
+  // Otherwise
   return null;
 };

@@ -1,14 +1,17 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
-type GameMode = "multi" | "single" | null;
+type GameMode = "multi" | "single" | "online" | null;
 type Difficulty = "easy" | "medium" | "hard" | null;
 type Phase =
   | "mainMenu"
+  // Single player phases
+  | "difficultySelection"
+  | "characterSelection" // for single player
+  // Multiplayer phases
   | "timeOptionSelection"
   | "timeSettings"
-  | "difficultySelection"
-  | "characterSelection"
+  | "characterSelectionMulti" // optional if you want to differentiate
   | "countdown"
   | "game";
 
@@ -17,6 +20,8 @@ interface GameContextType {
   setPhase: React.Dispatch<React.SetStateAction<Phase>>;
   gameMode: GameMode;
   setGameMode: React.Dispatch<React.SetStateAction<GameMode>>;
+  timed: boolean;
+  setTimed: React.Dispatch<React.SetStateAction<boolean>>;
   multiplayerTimer: number;
   setMultiplayerTimer: React.Dispatch<React.SetStateAction<number>>;
   difficulty: Difficulty;
@@ -32,6 +37,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [phase, setPhase] = useState<Phase>("mainMenu");
   const [gameMode, setGameMode] = useState<GameMode>(null);
+  const [timed, setTimed] = useState<boolean>(false);
   const [multiplayerTimer, setMultiplayerTimer] = useState<number>(0);
   const [difficulty, setDifficulty] = useState<Difficulty>(null);
   const [player1Char, setPlayer1Char] = useState<string | null>(null);
@@ -42,6 +48,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     setPhase,
     gameMode,
     setGameMode,
+    timed,
+    setTimed,
     multiplayerTimer,
     setMultiplayerTimer,
     difficulty,
