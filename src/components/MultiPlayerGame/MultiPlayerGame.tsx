@@ -2,10 +2,10 @@
 import React from "react";
 import { useGameContext } from "@/context/GameContext";
 import { BackButton } from "../buttons/BackButton";
-import { TimeOptionSelection } from "../TimeOptionSelection";
-import { TimeSetting } from "../TimeSetting";
+import { TimeOptionSelection } from "../shared/TimeOptionSelection";
+import { TimeSetting } from "../shared/TimeSetting";
 import { MultiPlayerCharacterSelection } from "./MultiPlayerCharacterSelection";
-import { Countdown } from "../Countdown";
+import { Countdown } from "../shared/Countdown";
 import { MultiPlayerBoard } from "./MultiPlayerBoard";
 
 export const MultiPlayerGame = () => {
@@ -17,9 +17,8 @@ export const MultiPlayerGame = () => {
     multiplayerTimer,
     setMultiplayerTimer,
     player1Char,
-    setPlayer1Char,
     player2Char,
-    setPlayer2Char,
+    setGameMode,
   } = useGameContext();
 
   const symbols = ["😀", "😎", "🚀", "🐱", "🔥", "🌟", "🍀"];
@@ -33,13 +32,12 @@ export const MultiPlayerGame = () => {
             onClick={() => {
               if (phase === "timeOptionSelection") {
                 setPhase("mainMenu");
+                setGameMode(null);
               } else if (phase === "timeSettings") {
                 setPhase("timeOptionSelection");
               } else if (phase === "characterSelectionMulti") {
                 setPhase("timeOptionSelection");
               } else if (phase === "countdown") {
-                setPhase("characterSelectionMulti");
-              } else if (phase === "game") {
                 setPhase("characterSelectionMulti");
               }
             }}
@@ -91,12 +89,7 @@ export const MultiPlayerGame = () => {
     return (
       <div className="relative">
         {renderBackButton()}
-        <MultiPlayerCharacterSelection
-          symbols={symbols}
-          onSelectPlayer1={(char) => setPlayer1Char(char)}
-          onSelectPlayer2={(char) => setPlayer2Char(char)}
-          onBothSelected={() => setPhase("countdown")}
-        />
+        <MultiPlayerCharacterSelection symbols={symbols} />
       </div>
     );
   }
@@ -114,15 +107,12 @@ export const MultiPlayerGame = () => {
   // 5. Board
   if (phase === "game") {
     return (
-      <div className="relative">
-        {renderBackButton()}
-        <MultiPlayerBoard
-          timed={timed}
-          timeLimit={multiplayerTimer}
-          player1Char={player1Char!}
-          player2Char={player2Char!}
-        />
-      </div>
+      <MultiPlayerBoard
+        timed={timed}
+        timeLimit={multiplayerTimer}
+        player1Char={player1Char!}
+        player2Char={player2Char!}
+      />
     );
   }
 

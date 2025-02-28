@@ -2,9 +2,9 @@
 import React from "react";
 import { useGameContext } from "@/context/GameContext";
 import { BackButton } from "../buttons/BackButton";
-import { DifficultySelection } from "../DifficultySelection";
+import { DifficultySelection } from "../shared/DifficultySelection";
 import { SinglePlayerCharacterSelection } from "./SinglePlayerCharacterSelection";
-import { Countdown } from "../Countdown";
+import { Countdown } from "../shared/Countdown";
 import { SinglePlayerBoard } from "./SinglePlayerBoard";
 
 export const SinglePlayerGame = () => {
@@ -17,6 +17,7 @@ export const SinglePlayerGame = () => {
     setPlayer1Char,
     player2Char,
     setPlayer2Char,
+    setGameMode,
   } = useGameContext();
 
   const symbols = ["😀", "😎", "🚀", "🐱", "🔥", "🌟", "🍀"];
@@ -24,9 +25,6 @@ export const SinglePlayerGame = () => {
   // Render a BackButton in the top-left corner for every phase except maybe "mainMenu".
   // Or conditionally if you prefer.
   const renderBackButton = () => {
-    // Example: If you're in "difficultySelection", back goes to "mainMenu"
-    // If you're in "characterSelection", back goes to "difficultySelection"
-    // etc.  We'll do a simple approach:
     if (phase !== "mainMenu") {
       return (
         <div className="absolute top-4 left-4 z-50">
@@ -34,11 +32,10 @@ export const SinglePlayerGame = () => {
             onClick={() => {
               if (phase === "difficultySelection") {
                 setPhase("mainMenu");
+                setGameMode(null);
               } else if (phase === "characterSelection") {
                 setPhase("difficultySelection");
               } else if (phase === "countdown") {
-                setPhase("characterSelection");
-              } else if (phase === "game") {
                 setPhase("characterSelection");
               }
             }}
@@ -95,14 +92,11 @@ export const SinglePlayerGame = () => {
   // Phase: game
   if (phase === "game") {
     return (
-      <div className="relative">
-        {renderBackButton()}
-        <SinglePlayerBoard
-          difficulty={difficulty!}
-          playerChar={player1Char!}
-          botChar={player2Char!}
-        />
-      </div>
+      <SinglePlayerBoard
+        difficulty={difficulty!}
+        playerChar={player1Char!}
+        botChar={player2Char!}
+      />
     );
   }
 
