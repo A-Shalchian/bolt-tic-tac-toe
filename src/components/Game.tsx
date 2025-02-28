@@ -1,7 +1,7 @@
 // Game.tsx
 "use client";
 import { useGameContext } from "@/context/GameContext";
-import { MainMenu } from "./MainMenu";
+import { MainMenu } from "./shared/MainMenu";
 import { SinglePlayerGame } from "./SinglePlayerGame/SinglePlayerGame";
 import { MultiPlayerGame } from "./MultiPlayerGame/MultiPlayerGame";
 
