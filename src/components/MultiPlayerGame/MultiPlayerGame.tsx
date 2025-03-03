@@ -76,7 +76,9 @@ export const MultiPlayerGame = () => {
         {renderBackButton()}
         <TimeSetting
           onSelect={(time) => {
+            console.log("Setting timer to:", time);
             setMultiplayerTimer(time);
+            console.log("Changing phase to characterSelectionMulti");
             setPhase("characterSelectionMulti");
           }}
         />
