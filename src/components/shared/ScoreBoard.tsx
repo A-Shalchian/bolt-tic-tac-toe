@@ -7,7 +7,7 @@ export const ScoreBoard: React.FC = () => {
     useGameContext();
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+    <div className="bg-indigo-200 p-6 rounded-lg shadow-md my-6">
       <h2 className="text-xl font-bold mb-2 text-center">Score</h2>
       <div className="space-y-2">
         <div className="flex justify-between items-center">

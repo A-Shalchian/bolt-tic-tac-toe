@@ -29,7 +29,24 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
   const [currentTurn, setCurrentTurn] = useState<"HUMAN" | "BOT">("HUMAN");
   const [winner, setWinner] = useState<string | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
-  const { player1Score, setPlayer1Score } = useGameContext();
+  const { player1Score, setPlayer1Score, player2Score, setPlayer2Score } =
+    useGameContext();
+
+  // map index to board position strings
+  const indexToPosition = (index: number): string => {
+    const positions = [
+      "top-left",
+      "top-center",
+      "top-right",
+      "center-left",
+      "center",
+      "center-right",
+      "bottom-left",
+      "bottom-center",
+      "bottom-right",
+    ];
+    return positions[index] || "";
+  };
 
   // If it's the bot's turn and there's no winner, pick a move.
   useEffect(() => {
@@ -83,7 +100,7 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
       newMoves.push(index);
       if (newMoves.length === 3 && checkForWin(newMoves)) {
         setWinner("Bot wins!");
-        setPlayer1Score(player1Score - 1);
+        setPlayer2Score(player2Score + 1);
       }
       setBotMoves(newMoves);
       setBoard(newBoard);
@@ -113,7 +130,8 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
   // Surrender
   const handleSurrender = () => {
     if (!winner) {
-      setWinner("Bot wins by surrender!");
+      setWinner("Bot wins by surrender! +2 points");
+      setPlayer2Score(player2Score + 2);
     }
   };
 
@@ -173,7 +191,7 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
       {/* Turn/Status Panel */}
       <div className="mb-4">
         <h2 className="text-xl font-bold">Single Player</h2>
-        <ScoreBoard />
+
         {!winner ? (
           <p className="mt-2">
             Current Turn:{" "}
@@ -200,9 +218,15 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
       </div>
 
       {/* Move History */}
+      <ScoreBoard />
       <div className="mt-4">
-        <p>Human moves: {humanMoves.join(", ")}</p>
-        <p>Bot moves: {botMoves.join(", ")}</p>
+        <p>
+          Human moves:{" "}
+          {humanMoves.map((move) => indexToPosition(move)).join(", ")}
+        </p>
+        <p>
+          Bot moves: {botMoves.map((move) => indexToPosition(move)).join(", ")}
+        </p>
       </div>
 
       {/* Rematch Modal */}
