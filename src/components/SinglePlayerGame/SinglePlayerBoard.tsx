@@ -7,13 +7,9 @@ import {
   getMediumMove,
   getHardMove,
 } from "@/utils/botLogic";
+import { useGameContext } from "@/context/GameContext";
+import { ScoreBoard } from "../shared/ScoreBoard";
 
-/**
- * SinglePlayerBoardProps:
- * - difficulty: "easy" | "medium" | "hard"
- * - playerChar: symbol for the human (e.g. "😀")
- * - botChar: symbol for the bot (e.g. "😎")
- */
 type SinglePlayerBoardProps = {
   difficulty: "easy" | "medium" | "hard";
   playerChar: string;
@@ -33,6 +29,7 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
   const [currentTurn, setCurrentTurn] = useState<"HUMAN" | "BOT">("HUMAN");
   const [winner, setWinner] = useState<string | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
+  const { player1Score, setPlayer1Score } = useGameContext();
 
   // If it's the bot's turn and there's no winner, pick a move.
   useEffect(() => {
@@ -72,6 +69,7 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
       newMoves.push(index);
       if (newMoves.length === 3 && checkForWin(newMoves)) {
         setWinner("You win!");
+        setPlayer1Score(player1Score + 1);
       }
       setHumanMoves(newMoves);
       setBoard(newBoard);
@@ -85,6 +83,7 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
       newMoves.push(index);
       if (newMoves.length === 3 && checkForWin(newMoves)) {
         setWinner("Bot wins!");
+        setPlayer1Score(player1Score - 1);
       }
       setBotMoves(newMoves);
       setBoard(newBoard);
@@ -174,6 +173,7 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
       {/* Turn/Status Panel */}
       <div className="mb-4">
         <h2 className="text-xl font-bold">Single Player</h2>
+        <ScoreBoard />
         {!winner ? (
           <p className="mt-2">
             Current Turn:{" "}

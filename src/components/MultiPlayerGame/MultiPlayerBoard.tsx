@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { SurrenderButton } from "../buttons/SurrenderButton";
 import { checkWin } from "@/utils/botLogic";
+import { useGameContext } from "@/context/GameContext";
 
 type Cell = "P1" | "P2" | null;
 
@@ -38,6 +39,7 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
   const [showPrompt, setShowPrompt] = useState(false);
   // Timer
   const [turnTimer, setTurnTimer] = useState<number>(timed ? timeLimit : 0);
+  const { player1Score, setPlayer1Score } = useGameContext();
 
   // Reset timer on turn change
   useEffect(() => {
@@ -86,6 +88,7 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
       newMoves.push(index);
       if (newMoves.length === 3 && checkForWin(newMoves)) {
         setWinner("Player 1 wins!");
+        setPlayer1Score(player1Score + 1);
         setBoard(newBoard);
         return;
       }

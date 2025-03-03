@@ -30,6 +30,10 @@ interface GameContextType {
   setPlayer1Char: React.Dispatch<React.SetStateAction<string | null>>;
   player2Char: string | null;
   setPlayer2Char: React.Dispatch<React.SetStateAction<string | null>>;
+  player1Score: number;
+  setPlayer1Score: React.Dispatch<React.SetStateAction<number>>;
+  player2Score: number;
+  setPlayer2Score: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -42,7 +46,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [difficulty, setDifficulty] = useState<Difficulty>(null);
   const [player1Char, setPlayer1Char] = useState<string | null>(null);
   const [player2Char, setPlayer2Char] = useState<string | null>(null);
-
+  const [player1Score, setPlayer1Score] = useState<number>(0);
+  const [player2Score, setPlayer2Score] = useState<number>(0);
   const value = {
     phase,
     setPhase,
@@ -58,6 +63,10 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     setPlayer1Char,
     player2Char,
     setPlayer2Char,
+    player1Score,
+    setPlayer1Score,
+    player2Score,
+    setPlayer2Score,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
