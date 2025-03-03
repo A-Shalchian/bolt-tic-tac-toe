@@ -12,7 +12,9 @@ export const DifficultySelection: React.FC<DifficultySelectionProps> = ({
 }) => {
   return (
     <div className="flex flex-col items-center justify-start min-h-screen pt-20">
-      <h2 className="text-2xl font-bold mb-8">Select Difficulty</h2>
+      <h2 className="text-2xl font-bold my-10 text-center">
+        Select Difficulty
+      </h2>
       <div className="flex flex-col gap-4">
         <button
           className="px-12 py-3 bg-emerald-500 btn-texts hover:bg-emerald-700"

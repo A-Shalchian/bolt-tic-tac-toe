@@ -9,7 +9,9 @@ type MainMenuProps = {
 export const MainMenu: React.FC<MainMenuProps> = ({ onModeSelect }) => {
   return (
     <div className="flex flex-col items-center justify-center h-[70vh]">
-      <h1 className="text-4xl font-bold mb-16">Choose Your Game Mode!</h1>
+      <h1 className="text-4xl font-bold mb-16 text-center">
+        Choose Your Game Mode!
+      </h1>
       <div className="flex flex-col gap-6">
         <button
           onClick={() => onModeSelect("single")}
