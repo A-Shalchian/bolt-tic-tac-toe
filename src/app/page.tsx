@@ -1,3 +1,4 @@
+import { Footer } from "@/homeSections/footer";
 import { Header } from "@/homeSections/Header";
 import { Main } from "@/homeSections/Main";
 export default function Home() {
@@ -5,6 +6,7 @@ export default function Home() {
     <section>
       <Header></Header>
       <Main />
+      <Footer />
     </section>
   );
 }
