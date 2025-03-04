@@ -28,7 +28,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onModeSelect }) => {
           <Swords className="ml-2 mt-1" />
         </button>
         <button
-          onClick={() => onModeSelect("online")}
+          onClick={() => alert("Coming soon :)")}
           className="px-12 py-4 bg-gray-400 text-white btn-texts"
         >
           Online (Coming Soon)
