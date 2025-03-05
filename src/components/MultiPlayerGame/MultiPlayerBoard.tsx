@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { SurrenderButton } from "../buttons/SurrenderButton";
+import { ScoreBoard } from "../shared/ScoreBoard";
 import { checkWin } from "@/utils/botLogic";
 import { useGameContext } from "@/context/GameContext";
 
@@ -39,7 +40,8 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
   const [showPrompt, setShowPrompt] = useState(false);
   // Timer
   const [turnTimer, setTurnTimer] = useState<number>(timed ? timeLimit : 0);
-  const { player1Score, setPlayer1Score } = useGameContext();
+  const { player1Score, setPlayer1Score, player2Score, setPlayer2Score } =
+    useGameContext();
 
   // Reset timer on turn change
   useEffect(() => {
@@ -103,6 +105,7 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
       newMoves.push(index);
       if (newMoves.length === 3 && checkForWin(newMoves)) {
         setWinner("Player 2 wins!");
+        setPlayer2Score(player2Score + 1);
         setBoard(newBoard);
         return;
       }
@@ -118,8 +121,10 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
     if (winner) return;
     if (currentTurn === "P1") {
       setWinner("Player 2 wins by surrender!");
+      setPlayer2Score(player2Score + 1);
     } else {
       setWinner("Player 1 wins by surrender!");
+      setPlayer1Score(player1Score + 1);
     }
   };
 
@@ -173,7 +178,7 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
   return (
     <div className="relative flex flex-col md:flex-row min-h-screen">
       {/* Surrender Button (top-right, high z-index) */}
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute -top-8 right-4 z-50">
         <SurrenderButton onClick={handleSurrender} />
       </div>
 
@@ -208,7 +213,7 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
       </div>
 
       {/* Center: Board */}
-      <div className="w-full md:w-2/4 p-4 flex justify-center items-center">
+      <div className="w-full md:w-2/4 p-4 flex justify-center items-start">
         <div className="grid grid-cols-3 gap-2">
           {Array.from({ length: 9 }).map((_, i) => renderCell(i))}
         </div>
@@ -216,6 +221,7 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
 
       {/* Right panel: Move history */}
       <div className="w-full md:w-1/4 p-4 border-t md:border-t-0 md:border-l">
+        <ScoreBoard />
         <h2 className="text-xl font-bold mb-2">Move History</h2>
         <p>Player 1 moves: {player1Moves.join(", ")}</p>
         <p>Player 2 moves: {player2Moves.join(", ")}</p>
@@ -223,18 +229,18 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
 
       {/* Modal: Play Again */}
       {showPrompt && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded shadow-lg text-center">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-20 rounded-lg shadow-lg text-center">
             <h2 className="text-2xl font-bold mb-4">Game Over</h2>
             <div className="flex flex-col gap-4">
               <button
-                className="px-4 py-2 bg-green-500 text-white rounded"
+                className="px-4 py-2 bg-green-500 btn-texts"
                 onClick={handleRematch}
               >
                 Rematch
               </button>
               <button
-                className="px-4 py-2 bg-gray-500 text-white rounded"
+                className="px-4 py-2 bg-gray-500 btn-texts"
                 onClick={() => window.location.reload()}
               >
                 Quit

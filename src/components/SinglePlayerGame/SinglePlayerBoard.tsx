@@ -182,16 +182,15 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
   };
 
   return (
-    <div className="relative flex flex-col items-center min-h-screen p-4">
+    <div className="relative flex flex-col md:flex-row min-h-screen">
       {/* Surrender Button */}
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute -top-8 right-4 z-50">
         <SurrenderButton onClick={handleSurrender} />
       </div>
 
-      {/* Turn/Status Panel */}
-      <div className="mb-4">
-        <h2 className="text-xl font-bold">Single Player</h2>
-
+      {/* Left Panel: Turn and Status */}
+      <div className="w-full md:w-1/4 p-4 border-b md:border-b-0 md:border-r">
+        <h2 className="text-xl font-bold mb-2">Single Player</h2>
         {!winner ? (
           <p className="mt-2">
             Current Turn:{" "}
@@ -212,21 +211,27 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
         )}
       </div>
 
-      {/* Board */}
-      <div className="grid grid-cols-3 gap-2">
-        {Array.from({ length: 9 }).map((_, i) => renderCell(i))}
+      {/* Center Panel: Game Board */}
+      <div className="w-full md:w-2/4 p-4 flex justify-center items-start">
+        <div className="grid grid-cols-3 gap-2">
+          {Array.from({ length: 9 }).map((_, i) => renderCell(i))}
+        </div>
       </div>
 
-      {/* Move History */}
-      <ScoreBoard />
-      <div className="mt-4">
-        <p>
-          Human moves:{" "}
-          {humanMoves.map((move) => indexToPosition(move)).join(", ")}
-        </p>
-        <p>
-          Bot moves: {botMoves.map((move) => indexToPosition(move)).join(", ")}
-        </p>
+      {/* Right Panel: Move History */}
+      <div className="w-full md:w-1/4 p-4 border-t md:border-t-0 md:border-l">
+        <ScoreBoard />
+        <div className="mt-4">
+          <p className="font-semibold">
+            Human moves:{" "}
+            {humanMoves.map((move) => indexToPosition(move)).join(", ")}
+          </p>
+          <br />
+          <p className="font-semibold">
+            Bot moves:{" "}
+            {botMoves.map((move) => indexToPosition(move)).join(", ")}
+          </p>
+        </div>
       </div>
 
       {/* Rematch Modal */}
