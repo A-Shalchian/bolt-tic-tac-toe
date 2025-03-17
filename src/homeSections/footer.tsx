@@ -1,4 +1,4 @@
-import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 export const Footer: React.FC = () => {
   return (
@@ -14,11 +14,12 @@ export const Footer: React.FC = () => {
         >
           <FaGithub size={24} />
         </a>
-        <a href="#" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://www.linkedin.com/in/arash-shalchian-230b06268/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <FaLinkedin size={24} />
-        </a>
-        <a href="#" target="_blank" rel="noopener noreferrer">
-          <FaEnvelope size={24} />
         </a>
       </div>
     </footer>
