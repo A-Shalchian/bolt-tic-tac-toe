@@ -14,6 +14,9 @@ export default {
         foreground: "var(--foreground)",
       },
     },
+    //screens: {
+    // board: "838px",
+    //},
   },
   plugins: [],
 } satisfies Config;
