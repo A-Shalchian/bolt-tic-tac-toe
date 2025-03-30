@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
-type GameMode = "multi" | "single" | "online" | null;
+type GameMode = "multi" | "single" | "online" | "tutorial" | null;
 type Difficulty = "easy" | "medium" | "hard" | null;
 type Phase =
   | "mainMenu"

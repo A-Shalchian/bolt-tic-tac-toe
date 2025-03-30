@@ -1,12 +1,15 @@
 "use client";
-import React from "react";
-import { Sword, Swords } from "lucide-react";
+import React, { useState } from "react";
+import { Sword, Swords, Info } from "lucide-react";
+import Tutorial from "../Tutorial";
 
 type MainMenuProps = {
-  onModeSelect: (mode: "single" | "multi" | "online") => void;
+  onModeSelect: (mode: "single" | "multi" | "online" | "tutorial") => void;
 };
 
 export const MainMenu: React.FC<MainMenuProps> = ({ onModeSelect }) => {
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+
   return (
     <div className="flex flex-col items-center justify-center h-[70vh]">
       <h1 className="text-4xl font-bold mb-16 text-center">
@@ -33,7 +36,17 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onModeSelect }) => {
         >
           Online (Coming Soon)
         </button>
+        <button
+          onClick={() => setIsTutorialOpen(true)}
+          className="px-12 py-4 bg-emerald-400 text-white btn-texts text-center flex items-center justify-center"
+        >
+          <span>How to Play </span>
+          <Info className="ml-2 mt-1" />
+        </button>
       </div>
+
+      {/* Tutorial Popup */}
+      <Tutorial isOpen={isTutorialOpen} onClose={() => setIsTutorialOpen(false)} />
     </div>
   );
 };
