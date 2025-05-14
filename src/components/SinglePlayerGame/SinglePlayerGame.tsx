@@ -1,105 +1,109 @@
 "use client";
-import React from "react";
-import { useGameContext } from "@/context/GameContext";
+import React, { useMemo } from "react";
+import { useGamePhase, Phase } from "@/context/GamePhaseContext";
+import { usePlayerContext } from "@/context/PlayerContext";
 import { BackButton } from "../buttons/BackButton";
 import { DifficultySelection } from "../shared/DifficultySelection";
-import { SinglePlayerCharacterSelection } from "./SinglePlayerCharacterSelection";
+import { CharacterSelection } from "../shared/CharacterSelection";
 import { Countdown } from "../shared/Countdown";
 import { SinglePlayerBoard } from "./SinglePlayerBoard";
+import { PhaseRenderer, usePhaseNavigation } from "../shared/PhaseRenderer";
 
 export const SinglePlayerGame = () => {
+  const { phase, setPhase, setGameMode } = useGamePhase();
   const {
-    phase,
-    setPhase,
     difficulty,
     setDifficulty,
     player1Char,
     setPlayer1Char,
     player2Char,
     setPlayer2Char,
-    setGameMode,
-  } = useGameContext();
+  } = usePlayerContext();
 
   const symbols = ["😀", "😎", "🚀", "🐱", "🔥", "🌟", "🍀"];
 
-  // Render a BackButton in the top-left corner for every phase except maybe "mainMenu".
-  // Or conditionally if you prefer.
-  const renderBackButton = () => {
-    if (phase !== "mainMenu") {
-      return (
-        <div className="absolute top-4 left-4 z-50">
-          <BackButton
-            onClick={() => {
-              if (phase === "difficultySelection") {
-                setPhase("mainMenu");
-                setGameMode(null);
-              } else if (phase === "characterSelection") {
-                setPhase("difficultySelection");
-              } else if (phase === "countdown") {
-                setPhase("characterSelection");
-              }
-            }}
-          />
-        </div>
-      );
-    }
-    return null;
+  // Phase navigation map
+  const phaseNavigation: Record<Phase, Phase> = {
+    difficultySelection: "mainMenu",
+    characterSelection: "difficultySelection",
+    countdown: "characterSelection",
+    game: "countdown",
+    // Add other phases with their default values
+    mainMenu: "mainMenu",
+    timeOptionSelection: "mainMenu",
+    timeSettings: "timeOptionSelection",
+    characterSelectionMulti: "timeOptionSelection",
   };
 
-  // Phase: difficultySelection
-  if (phase === "difficultySelection") {
-    return (
-      <div className="relative">
-        {renderBackButton()}
-        <DifficultySelection
-          onSelect={(diff) => {
-            setDifficulty(diff);
-            setPhase("characterSelection");
-          }}
-        />
-      </div>
-    );
+  const navigateBack = usePhaseNavigation(
+    setPhase,
+    setGameMode,
+    phaseNavigation
+  );
+
+  // Define phase components
+  const phases = useMemo(
+    () => ({
+      difficultySelection: {
+        component: (
+          <DifficultySelection
+            onSelect={(diff) => {
+              setDifficulty(diff);
+              setPhase("characterSelection");
+            }}
+          />
+        ),
+        onBack: () => navigateBack("difficultySelection"),
+      },
+      characterSelection: {
+        component: (
+          <CharacterSelection
+            symbols={symbols}
+            gameMode="single"
+            onComplete={() => setPhase("countdown")}
+          />
+        ),
+        onBack: () => navigateBack("characterSelection"),
+      },
+      countdown: {
+        component: (
+          <Countdown initialCount={3} onComplete={() => setPhase("game")} />
+        ),
+        onBack: () => navigateBack("countdown"),
+      },
+      game: {
+        component: (
+          <SinglePlayerBoard
+            difficulty={difficulty!}
+            playerChar={player1Char!}
+            botChar={player2Char!}
+          />
+        ),
+        // No back button during active game
+      },
+      // Add empty entries for other phases to satisfy TypeScript
+      mainMenu: { component: null },
+      timeOptionSelection: { component: null },
+      timeSettings: { component: null },
+      characterSelectionMulti: { component: null },
+    }),
+    [
+      difficulty,
+      player1Char,
+      player2Char,
+      setDifficulty,
+      setPhase,
+      setPlayer1Char,
+      setPlayer2Char,
+      symbols,
+      navigateBack,
+    ]
+  );
+
+  // Only render if we have a valid phase component
+  if (phase in phases) {
+    return <PhaseRenderer currentPhase={phase} phases={phases} />;
   }
 
-  // Phase: characterSelection
-  if (phase === "characterSelection") {
-    return (
-      <div className="relative">
-        {renderBackButton()}
-        <SinglePlayerCharacterSelection
-          symbols={symbols}
-          onPlayerSelect={(char) => {
-            setPlayer1Char(char);
-            const botSymbol = symbols.find((s) => s !== char) || "😎";
-            setPlayer2Char(botSymbol);
-            setPhase("countdown");
-          }}
-        />
-      </div>
-    );
-  }
-
-  // Phase: countdown
-  if (phase === "countdown") {
-    return (
-      <div className="relative">
-        {renderBackButton()}
-        <Countdown initialCount={3} onComplete={() => setPhase("game")} />
-      </div>
-    );
-  }
-
-  // Phase: game
-  if (phase === "game") {
-    return (
-      <SinglePlayerBoard
-        difficulty={difficulty!}
-        playerChar={player1Char!}
-        botChar={player2Char!}
-      />
-    );
-  }
-
-  // Otherwise
   return null;
 };
