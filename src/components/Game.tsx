@@ -1,12 +1,12 @@
 // Game.tsx
 "use client";
-import { useGameContext } from "@/context/GameContext";
+import { useGamePhase } from "@/context/GamePhaseContext";
 import { MainMenu } from "./shared/MainMenu";
 import { SinglePlayerGame } from "./SinglePlayerGame/SinglePlayerGame";
 import { MultiPlayerGame } from "./MultiPlayerGame/MultiPlayerGame";
 
 export const Game = () => {
-  const { gameMode, setGameMode, setPhase } = useGameContext();
+  const { gameMode, setGameMode, setPhase } = useGamePhase();
 
   if (!gameMode) {
     return (
@@ -28,7 +28,5 @@ export const Game = () => {
     return <SinglePlayerGame />;
   } else if (gameMode === "multi") {
     return <MultiPlayerGame />;
-  } else {
-    return <div>Online mode coming soon!</div>;
   }
 };
