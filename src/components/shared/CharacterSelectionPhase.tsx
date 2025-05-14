@@ -44,6 +44,11 @@ export const CharacterSelectionPhase: React.FC<
     }
   }, [gameMode, player1Char, player2Char, setPlayer2Char, symbols]);
 
+  // Handle character selection completion
+  const handleComplete = () => {
+    setPhase("countdown");
+  };
+
   return (
     <div className="relative">
       <BackButton
@@ -53,9 +58,9 @@ export const CharacterSelectionPhase: React.FC<
       />
       {!player1Char ? (
         <CharacterSelection
-          player="Player 1"
-          availableSymbols={symbols}
-          onSelect={setPlayer1Char}
+          symbols={symbols}
+          gameMode={gameMode || "single"}
+          onComplete={handleComplete}
         />
       ) : !player2Char ? (
         // Instead of auto-assigning inline, we wait for the useEffect to set it.
