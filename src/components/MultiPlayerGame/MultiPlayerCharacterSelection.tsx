@@ -1,14 +1,16 @@
 "use client";
 import React from "react";
-import { useGameContext } from "@/context/GameContext";
+import { usePlayerContext } from "@/context/PlayerContext";
+import { useGamePhase } from "@/context/GamePhaseContext";
 
 type Props = {
   symbols: string[];
 };
 
 export const MultiPlayerCharacterSelection: React.FC<Props> = ({ symbols }) => {
-  const { player1Char, setPlayer1Char, player2Char, setPlayer2Char, setPhase } =
-    useGameContext();
+  const { player1Char, setPlayer1Char, player2Char, setPlayer2Char } =
+    usePlayerContext();
+  const { setPhase } = useGamePhase();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
