@@ -1,9 +1,10 @@
 import { Game } from "@/components/Game";
-import { GameProvider } from "@/context/GameContext";
+import { AppProviders } from "@/context/AppProviders";
+
 export const Main = () => {
   return (
-    <GameProvider>
+    <AppProviders>
       <Game />
-    </GameProvider>
+    </AppProviders>
   );
 };

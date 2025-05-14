@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { GameProvider } from "@/context/GameContext";
+import { AppProviders } from "@/context/AppProviders";
 import { Footer } from "@/homeSections/footer";
 import { Header } from "@/homeSections/Header";
 
@@ -18,7 +18,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={` antialiased`}>
         <Header />
-        <GameProvider>{children}</GameProvider>
+
+        <AppProviders>{children}</AppProviders>
+
         <Footer />
       </body>
     </html>
