@@ -1,8 +1,7 @@
 "use client";
-import React, { useMemo } from "react";
-import { useGamePhase, Phase } from "@/context/GamePhaseContext";
-import { usePlayerContext } from "@/context/PlayerContext";
-import { useGameSettings } from "@/context/GameSettingsContext";
+import React, { useMemo, useCallback } from "react";
+import { useGameStore } from "@/store";
+import type { Phase } from "@/store";
 import { TimeOptionSelection } from "../shared/TimeOptionSelection";
 import { TimeSetting } from "../shared/TimeSetting";
 import { CharacterSelection } from "../shared/CharacterSelection";
@@ -11,12 +10,25 @@ import { MultiPlayerBoard } from "./MultiPlayerBoard";
 import { PhaseRenderer, usePhaseNavigation } from "../shared/PhaseRenderer";
 
 export const MultiPlayerGame = () => {
-  const { phase, setPhase, setGameMode } = useGamePhase();
-  const { player1Char, player2Char } = usePlayerContext();
-  const { timed, setTimed, multiplayerTimer, setMultiplayerTimer } =
-    useGameSettings();
-
-  const symbols = ["😀", "😎", "🚀", "🐱", "🔥", "🌟", "🍀"];
+  const phase = useGameStore(state => state.phase);
+  const setPhase = useGameStore(state => state.setPhase);
+  const setGameMode = useGameStore(state => state.setGameMode);
+  const player1 = useGameStore(state => state.player1);
+  const player2 = useGameStore(state => state.player2);
+  const player1Char = player1.symbol;
+  const player2Char = player2.symbol;
+  
+  // Get settings from Zustand store
+  const timeLimit = useGameStore(state => state.timeLimit);
+  const setTimeLimit = useGameStore(state => state.setTimeLimit);
+  const isTimed = useGameStore(state => state.isTimed);
+  const setIsTimed = useGameStore(state => state.setIsTimed);
+  
+  // For compatibility with existing code
+  const timed = isTimed;
+  const multiplayerTimer = timeLimit;
+  const setTimed = setIsTimed;
+  const setMultiplayerTimer = setTimeLimit;
 
   // Phase navigation map
   const phaseNavigation: Record<Phase, Phase> = {
@@ -37,9 +49,15 @@ export const MultiPlayerGame = () => {
     phaseNavigation
   );
 
+  // Define symbols in their own useMemo to prevent dependency changes on every render
+  const symbols = useMemo(() => ["😀", "😎", "🚀", "🐱", "🔥", "🌟", "🍀"], []);
+  
   // Define phase components
-  const phases = useMemo(
-    () => ({
+  const phases = useMemo(() => {
+    // Debug the phase components being created
+    console.log('Creating phase components, current phase:', phase);
+    
+    return {
       timeOptionSelection: {
         component: (
           <TimeOptionSelection
@@ -99,24 +117,28 @@ export const MultiPlayerGame = () => {
       mainMenu: { component: null },
       difficultySelection: { component: null },
       characterSelection: { component: null },
-    }),
-    [
-      timed,
-      multiplayerTimer,
-      player1Char,
-      player2Char,
-      setTimed,
-      setMultiplayerTimer,
-      setPhase,
-      symbols,
-      navigateBack,
-    ]
-  );
+    };
+  }, [
+    timed,
+    multiplayerTimer,
+    player1Char,
+    player2Char,
+    setTimed,
+    setMultiplayerTimer,
+    setPhase,
+    navigateBack,
+    phase,
+    symbols
+  ]);
+
+  // Debug output to see current phase
+  console.log('Current phase:', phase);
 
   // Only render if we have a valid phase component
   if (phase in phases) {
     return <PhaseRenderer currentPhase={phase} phases={phases} />;
   }
-
-  return null;
+  
+  // Fallback in case phase isn't recognized
+  return <div>Loading...</div>;
 };

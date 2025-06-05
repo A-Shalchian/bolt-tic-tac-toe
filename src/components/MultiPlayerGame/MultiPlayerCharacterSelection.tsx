@@ -1,16 +1,26 @@
 "use client";
 import React from "react";
-import { usePlayerContext } from "@/context/PlayerContext";
-import { useGamePhase } from "@/context/GamePhaseContext";
+import { useGameStore } from "@/store";
 
 type Props = {
   symbols: string[];
 };
 
 export const MultiPlayerCharacterSelection: React.FC<Props> = ({ symbols }) => {
-  const { player1Char, setPlayer1Char, player2Char, setPlayer2Char } =
-    usePlayerContext();
-  const { setPhase } = useGamePhase();
+  // Get player state and setter functions from Zustand store
+  const player1 = useGameStore(state => state.player1);
+  const player2 = useGameStore(state => state.player2);
+  const setPlayer1 = useGameStore(state => state.setPlayer1);
+  const setPlayer2 = useGameStore(state => state.setPlayer2);
+  const setPhase = useGameStore(state => state.setPhase);
+  
+  // Extract symbols from player objects for compatibility with existing code
+  const player1Char = player1.symbol;
+  const player2Char = player2.symbol;
+  
+  // Create setter functions that match the original context API
+  const setPlayer1Char = (symbol: string) => setPlayer1({ ...player1, symbol });
+  const setPlayer2Char = (symbol: string) => setPlayer2({ ...player2, symbol });
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
