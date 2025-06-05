@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { getEasyMove, getMediumMove, getHardMove } from "@/utils/botLogic";
 import { ScoreBoard } from "../shared/ScoreBoard";
-import { BaseBoard, useGameBoard, Cell } from "../shared/BaseBoard";
+import { BaseBoard, useGameBoard } from "../shared/BaseBoard";
 
 type SinglePlayerBoardProps = {
   difficulty: "easy" | "medium" | "hard";
@@ -54,36 +54,8 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
     return positions[index] || "";
   };
 
-  // If it's the bot's turn and there's no winner, pick a move.
-  useEffect(() => {
-    if (!winner && currentTurn === "BOT") {
-      const timer = setTimeout(() => {
-        makeBotMove();
-      }, 750);
-      return () => clearTimeout(timer);
-    }
-  }, [currentTurn, winner]);
-
-  // Human clicks a cell
-  const handleCellClick = (index: number) => {
-    if (winner || currentTurn !== "HUMAN" || board[index] !== null) return;
-
-    const hasWon = updateMoves(
-      index,
-      "HUMAN",
-      player1Moves,
-      setPlayer1Moves,
-      "You win!",
-      () => setPlayer1Score(player1Score + 1)
-    );
-
-    if (!hasWon) {
-      setCurrentTurn("BOT");
-    }
-  };
-
   // Bot picks a move based on difficulty
-  const makeBotMove = () => {
+  const makeBotMove = useCallback(() => {
     if (winner) return;
     let move: number;
 
@@ -115,7 +87,36 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
     if (!hasWon) {
       setCurrentTurn("HUMAN");
     }
+  }, [winner, board, difficulty, player1Moves, player2Moves, updateMoves, setWinner, setPlayer2Moves, player2Score, setPlayer2Score, setCurrentTurn]);
+
+  // If it's the bot's turn and there's no winner, pick a move.
+  useEffect(() => {
+    if (!winner && currentTurn === "BOT") {
+      const timer = setTimeout(() => {
+        makeBotMove();
+      }, 750);
+      return () => clearTimeout(timer);
+    }
+  }, [currentTurn, winner, makeBotMove]);
+
+  // Human clicks a cell
+  const handleCellClick = (index: number) => {
+    if (winner || currentTurn !== "HUMAN" || board[index] !== null) return;
+
+    const hasWon = updateMoves(
+      index,
+      "HUMAN",
+      player1Moves,
+      setPlayer1Moves,
+      "You win!",
+      () => setPlayer1Score(player1Score + 1)
+    );
+
+    if (!hasWon) {
+      setCurrentTurn("BOT");
+    }
   };
+
 
   // Surrender
   const handleSurrender = () => {
@@ -211,6 +212,7 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
       renderRightPanel={renderRightPanel}
       showRematchPrompt={showPrompt}
       onRematch={handleRematch}
+      onClose={() => setShowPrompt(false)}
     />
   );
 };
