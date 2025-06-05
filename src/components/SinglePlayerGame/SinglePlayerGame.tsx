@@ -1,7 +1,7 @@
 "use client";
 import React, { useMemo } from "react";
-import { useGamePhase, Phase } from "@/context/GamePhaseContext";
-import { usePlayerContext } from "@/context/PlayerContext";
+import { useGameStore } from "@/store";
+import type { Phase } from "@/store";
 import { BackButton } from "../buttons/BackButton";
 import { DifficultySelection } from "../shared/DifficultySelection";
 import { CharacterSelection } from "../shared/CharacterSelection";
@@ -10,17 +10,21 @@ import { SinglePlayerBoard } from "./SinglePlayerBoard";
 import { PhaseRenderer, usePhaseNavigation } from "../shared/PhaseRenderer";
 
 export const SinglePlayerGame = () => {
-  const { phase, setPhase, setGameMode } = useGamePhase();
-  const {
-    difficulty,
-    setDifficulty,
-    player1Char,
-    setPlayer1Char,
-    player2Char,
-    setPlayer2Char,
-  } = usePlayerContext();
-
-  const symbols = ["😀", "😎", "🚀", "🐱", "🔥", "🌟", "🍀"];
+  const phase = useGameStore(state => state.phase);
+  const setPhase = useGameStore(state => state.setPhase);
+  const setGameMode = useGameStore(state => state.setGameMode);
+  const difficulty = useGameStore(state => state.difficulty);
+  const setDifficulty = useGameStore(state => state.setDifficulty);
+  const player1 = useGameStore(state => state.player1);
+  const player2 = useGameStore(state => state.player2);
+  const setPlayer1 = useGameStore(state => state.setPlayer1);
+  const setPlayer2 = useGameStore(state => state.setPlayer2);
+  
+  // Aliases for compatibility
+  const player1Char = player1.symbol;
+  const player2Char = player2.symbol;
+  const setPlayer1Char = (symbol: string) => setPlayer1({ ...player1, symbol });
+  const setPlayer2Char = (symbol: string) => setPlayer2({ ...player2, symbol });
 
   // Phase navigation map
   const phaseNavigation: Record<Phase, Phase> = {
@@ -42,8 +46,10 @@ export const SinglePlayerGame = () => {
   );
 
   // Define phase components
-  const phases = useMemo(
-    () => ({
+  const phases = useMemo(() => {
+    const symbols = ["😀", "😎", "🚀", "🐱", "🔥", "🌟", "🍀"];
+    
+    return {
       difficultySelection: {
         component: (
           <DifficultySelection
@@ -86,19 +92,15 @@ export const SinglePlayerGame = () => {
       timeOptionSelection: { component: null },
       timeSettings: { component: null },
       characterSelectionMulti: { component: null },
-    }),
-    [
-      difficulty,
-      player1Char,
-      player2Char,
-      setDifficulty,
-      setPhase,
-      setPlayer1Char,
-      setPlayer2Char,
-      symbols,
-      navigateBack,
-    ]
-  );
+    };
+  }, [
+    difficulty,
+    player1Char,
+    player2Char,
+    setDifficulty,
+    setPhase,
+    navigateBack
+  ]);
 
   // Only render if we have a valid phase component
   if (phase in phases) {

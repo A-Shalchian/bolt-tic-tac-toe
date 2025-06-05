@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
-import { usePlayerContext } from "@/context/PlayerContext";
-import { useGamePhase } from "@/context/GamePhaseContext";
+import { useGameStore } from "@/store";
 
 interface CharacterSelectionProps {
   symbols: string[];
@@ -14,9 +13,39 @@ export const CharacterSelection: React.FC<CharacterSelectionProps> = ({
   gameMode,
   onComplete,
 }) => {
-  const { player1Char, setPlayer1Char, player2Char, setPlayer2Char } =
-    usePlayerContext();
-  const { setPhase } = useGamePhase();
+  console.log('CharacterSelection rendering:', { gameMode, symbols });
+  // Get player state and setter functions from Zustand store
+  const player1 = useGameStore(state => state.player1);
+  const player2 = useGameStore(state => state.player2);
+  const setPlayer1 = useGameStore(state => state.setPlayer1);
+  const setPlayer2 = useGameStore(state => state.setPlayer2);
+  const setPhase = useGameStore(state => state.setPhase);
+  
+  // Debug player state
+  console.log('Current player state:', { player1, player2 });
+  
+  // Extract symbols from player objects for compatibility with existing code
+  const player1Char = player1.symbol;
+  const player2Char = player2.symbol;
+  
+  // Reset player characters when the component mounts in multi-player mode
+  // Use a ref to track if we've already reset to avoid infinite loops
+  const hasReset = React.useRef(false);
+  
+  React.useEffect(() => {
+    // Only reset once when the component first mounts
+    if (gameMode === "multi" && !hasReset.current) {
+      console.log('Resetting player characters for multiplayer mode');
+      // Intentionally access latest state inside the effect to avoid dependency loops
+      setPlayer1({ name: "Player 1", symbol: "" });
+      setPlayer2({ name: "Player 2", symbol: "" });
+      hasReset.current = true;
+    }
+  }, [gameMode, setPlayer1, setPlayer2]); // Only depend on stable functions and values
+  
+  // Create setter functions that match the original context API
+  const setPlayer1Char = (symbol: string) => setPlayer1({ ...player1, symbol });
+  const setPlayer2Char = (symbol: string) => setPlayer2({ ...player2, symbol });
 
   const handlePlayer1Selection = (symbol: string) => {
     setPlayer1Char(symbol);

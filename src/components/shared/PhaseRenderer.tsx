@@ -1,7 +1,7 @@
 "use client";
 import React, { ReactNode } from "react";
 import { BackButton } from "../buttons/BackButton";
-import { Phase } from "@/context/GamePhaseContext";
+import type { Phase } from "@/store";
 
 interface PhaseComponentProps {
   children: ReactNode;
@@ -53,10 +53,8 @@ export const PhaseRenderer: React.FC<PhaseRendererProps> = ({
 
 // Helper hook to create back button navigation logic
 export const usePhaseNavigation = (
-  setPhase: React.Dispatch<React.SetStateAction<Phase>>,
-  setGameMode: React.Dispatch<
-    React.SetStateAction<"multi" | "single" | "online" | "tutorial" | null>
-  >,
+  setPhase: (phase: Phase) => void,
+  setGameMode: (gameMode: "multi" | "single" | "online" | "tutorial" | null) => void,
   phaseMap: Record<string, Phase>
 ) => {
   const navigateBack = (currentPhase: Phase) => {

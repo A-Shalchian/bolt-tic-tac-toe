@@ -1,6 +1,6 @@
-// src/components/TimeSettings.tsx
 "use client";
 import React, { useState } from "react";
+import { useGameStore } from "@/store";
 
 type TimeSettingsProps = {
   onSelect: (time: number) => void;
@@ -9,10 +9,22 @@ type TimeSettingsProps = {
 export const TimeSetting: React.FC<TimeSettingsProps> = ({ onSelect }) => {
   const [customTime, setCustomTime] = useState<number>(0);
   const [showCustom, setShowCustom] = useState(false);
+  
+  // Get setters from Zustand store
+  const setTimeLimit = useGameStore(state => state.setTimeLimit);
+  const setPhase = useGameStore(state => state.setPhase);
 
   const handleTimeSelect = (time: number) => {
-    console.log("Selected time:", time);
+    console.log("TimeSetting: Selected time:", time);
     if (time > 0) {
+      // Update the store state
+      setTimeLimit(time);
+      
+      // Directly navigate to the next phase
+      console.log("TimeSetting: Navigating to characterSelectionMulti phase");
+      setPhase("characterSelectionMulti");
+      
+      // Also call the onSelect callback for compatibility
       onSelect(time);
     }
   };

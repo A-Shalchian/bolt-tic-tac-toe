@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { SurrenderButton } from "../buttons/SurrenderButton";
 import { ScoreBoard } from "./ScoreBoard";
 import { checkWin } from "@/utils/botLogic";
-import { useScoreContext } from "@/context/ScoreContext";
+import { useGameStore } from "@/store";
 
 export type Cell = string | null;
 
@@ -32,8 +32,26 @@ export const useGameBoard = (
   const [currentTurn, setCurrentTurn] = useState<string>(initialTurn);
   const [winner, setWinner] = useState<string | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
-  const { player1Score, setPlayer1Score, player2Score, setPlayer2Score } =
-    useScoreContext();
+  // Get scores from Zustand store
+  const player1Score = useGameStore(state => state.player1Score);
+  const player2Score = useGameStore(state => state.player2Score);
+  const incrementPlayer1Score = useGameStore(state => state.incrementPlayer1Score);
+  const incrementPlayer2Score = useGameStore(state => state.incrementPlayer2Score);
+  
+  // Create setScore functions to maintain compatibility with existing code
+  // These are simplified to just increment once when needed rather than trying to set absolute values
+  // This works because in the game context, scores are only ever incremented by 1
+  const setPlayer1Score = (score: number) => {
+    if (score > player1Score) {
+      incrementPlayer1Score();
+    }
+  };
+  
+  const setPlayer2Score = (score: number) => {
+    if (score > player2Score) {
+      incrementPlayer2Score();
+    }
+  };
 
   // Check if 3 moves form a win
   const checkForWin = (moves: number[]): boolean => {

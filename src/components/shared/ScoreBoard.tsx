@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
-import { useScoreContext } from "@/context/ScoreContext";
-import { usePlayerContext } from "@/context/PlayerContext";
+import { useGameStore } from "@/store";
 
 interface ScoreBoardProps {
   player1?: string;
@@ -16,11 +15,18 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({
   player1Score: propPlayer1Score,
   player2Score: propPlayer2Score,
 }) => {
-  const {
-    player1Score: contextPlayer1Score,
-    player2Score: contextPlayer2Score,
-  } = useScoreContext();
-  const { player1Char, player2Char } = usePlayerContext();
+  const storePlayer1Score = useGameStore(state => state.player1Score);
+  const storePlayer2Score = useGameStore(state => state.player2Score);
+  const storePlayer1 = useGameStore(state => state.player1);
+  const storePlayer2 = useGameStore(state => state.player2);
+  
+  // Access the symbols
+  const player1Char = storePlayer1.symbol;
+  const player2Char = storePlayer2.symbol;
+  
+  // Create aliases for context values for compatibility with existing code
+  const contextPlayer1Score = storePlayer1Score;
+  const contextPlayer2Score = storePlayer2Score;
 
   // Use props if provided, otherwise fall back to context values
   const p1Score =
