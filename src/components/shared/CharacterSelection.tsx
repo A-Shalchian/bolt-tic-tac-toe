@@ -13,16 +13,12 @@ export const CharacterSelection: React.FC<CharacterSelectionProps> = ({
   gameMode,
   onComplete,
 }) => {
-  console.log('CharacterSelection rendering:', { gameMode, symbols });
   // Get player state and setter functions from Zustand store
   const player1 = useGameStore(state => state.player1);
   const player2 = useGameStore(state => state.player2);
   const setPlayer1 = useGameStore(state => state.setPlayer1);
   const setPlayer2 = useGameStore(state => state.setPlayer2);
   const setPhase = useGameStore(state => state.setPhase);
-  
-  // Debug player state
-  console.log('Current player state:', { player1, player2 });
   
   // Extract symbols from player objects for compatibility with existing code
   const player1Char = player1.symbol;
@@ -35,7 +31,7 @@ export const CharacterSelection: React.FC<CharacterSelectionProps> = ({
   React.useEffect(() => {
     // Only reset once when the component first mounts
     if (gameMode === "multi" && !hasReset.current) {
-      console.log('Resetting player characters for multiplayer mode');
+      
       // Intentionally access latest state inside the effect to avoid dependency loops
       setPlayer1({ name: "Player 1", symbol: "" });
       setPlayer2({ name: "Player 2", symbol: "" });

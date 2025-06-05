@@ -14,17 +14,13 @@ export const TimeOptionSelection: React.FC<TimeOptionSelectionProps> = ({
   const setPhase = useGameStore(state => state.setPhase);
   
   const handleTimedSelection = (isTimed: boolean) => {
-    console.log(`TimeOptionSelection: Selected ${isTimed ? 'Timed' : 'No Time'}`);
-    
     // Update the store state
     setIsTimed(isTimed);
     
     // Navigate to the next phase directly
     if (isTimed) {
-      console.log('TimeOptionSelection: Navigating to timeSettings phase');
       setPhase("timeSettings");
     } else {
-      console.log('TimeOptionSelection: Navigating to characterSelectionMulti phase');
       setPhase("characterSelectionMulti");
     }
     

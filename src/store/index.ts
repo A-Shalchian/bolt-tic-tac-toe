@@ -22,7 +22,7 @@ interface GamePhaseState {
   setGameMode: (gameMode: GameMode) => void;
 }
 
-// Player State (based on your PlayerContext)
+// Player State (based on PlayerContext)
 interface PlayerState {
   currentPlayer: string;
   player1: { name: string; symbol: string };
@@ -76,11 +76,11 @@ export const useGameStore = create<GameState>((set) => ({
   setPlayer2: (player) => set({ player2: player }),
   
   // Game Settings State
-  difficulty: "medium",
-  timeLimit: 30,
-  isTimed: false,
-  boardSize: 3,
-  winCondition: 3,
+  difficulty: "medium",  // Default value
+  timeLimit: 30,        // Default value
+  isTimed: false,       // Default value
+  boardSize: 3,         // Default value
+  winCondition: 3,      // Default value  
   setDifficulty: (difficulty) => set({ difficulty }),
   setTimeLimit: (timeLimit) => set({ timeLimit }),
   setIsTimed: (isTimed) => set({ isTimed }),

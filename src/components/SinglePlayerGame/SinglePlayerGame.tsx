@@ -2,7 +2,6 @@
 import React, { useMemo } from "react";
 import { useGameStore } from "@/store";
 import type { Phase } from "@/store";
-import { BackButton } from "../buttons/BackButton";
 import { DifficultySelection } from "../shared/DifficultySelection";
 import { CharacterSelection } from "../shared/CharacterSelection";
 import { Countdown } from "../shared/Countdown";
@@ -23,8 +22,6 @@ export const SinglePlayerGame = () => {
   // Aliases for compatibility
   const player1Char = player1.symbol;
   const player2Char = player2.symbol;
-  const setPlayer1Char = (symbol: string) => setPlayer1({ ...player1, symbol });
-  const setPlayer2Char = (symbol: string) => setPlayer2({ ...player2, symbol });
 
   // Phase navigation map
   const phaseNavigation: Record<Phase, Phase> = {
@@ -85,7 +82,6 @@ export const SinglePlayerGame = () => {
             botChar={player2Char!}
           />
         ),
-        // No back button during active game
       },
       // Add empty entries for other phases to satisfy TypeScript
       mainMenu: { component: null },

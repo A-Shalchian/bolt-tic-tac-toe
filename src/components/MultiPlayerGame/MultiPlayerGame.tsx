@@ -54,9 +54,6 @@ export const MultiPlayerGame = () => {
   
   // Define phase components
   const phases = useMemo(() => {
-    // Debug the phase components being created
-    console.log('Creating phase components, current phase:', phase);
-    
     return {
       timeOptionSelection: {
         component: (
@@ -127,12 +124,8 @@ export const MultiPlayerGame = () => {
     setMultiplayerTimer,
     setPhase,
     navigateBack,
-    phase,
     symbols
   ]);
-
-  // Debug output to see current phase
-  console.log('Current phase:', phase);
 
   // Only render if we have a valid phase component
   if (phase in phases) {

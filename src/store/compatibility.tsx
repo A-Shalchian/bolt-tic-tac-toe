@@ -48,7 +48,6 @@ export const useGameContext = () => {
 };
 
 // Empty providers for compatibility
-// You can wrap your app with these during migration without changing functionality
 export const GamePhaseProvider = ({ children }: { children: ReactNode }) => {
   return <>{children}</>;
 };
@@ -69,5 +68,4 @@ export const AppProviders = ({ children }: { children: ReactNode }) => {
   return <>{children}</>;
 };
 
-// Alias for the old GameProvider
 export const GameProvider = AppProviders;

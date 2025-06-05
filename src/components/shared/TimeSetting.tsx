@@ -15,13 +15,11 @@ export const TimeSetting: React.FC<TimeSettingsProps> = ({ onSelect }) => {
   const setPhase = useGameStore(state => state.setPhase);
 
   const handleTimeSelect = (time: number) => {
-    console.log("TimeSetting: Selected time:", time);
     if (time > 0) {
       // Update the store state
       setTimeLimit(time);
       
       // Directly navigate to the next phase
-      console.log("TimeSetting: Navigating to characterSelectionMulti phase");
       setPhase("characterSelectionMulti");
       
       // Also call the onSelect callback for compatibility

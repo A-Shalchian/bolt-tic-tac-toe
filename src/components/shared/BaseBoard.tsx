@@ -39,8 +39,6 @@ export const useGameBoard = (
   const incrementPlayer2Score = useGameStore(state => state.incrementPlayer2Score);
   
   // Create setScore functions to maintain compatibility with existing code
-  // These are simplified to just increment once when needed rather than trying to set absolute values
-  // This works because in the game context, scores are only ever incremented by 1
   const setPlayer1Score = (score: number) => {
     if (score > player1Score) {
       incrementPlayer1Score();
@@ -137,6 +135,7 @@ export const BaseBoard: React.FC<
     renderRightPanel: () => React.ReactNode;
     showRematchPrompt: boolean;
     onRematch: () => void;
+    onClose: () => void;
   }
 > = ({
   children,
@@ -146,6 +145,7 @@ export const BaseBoard: React.FC<
   renderRightPanel,
   showRematchPrompt,
   onRematch,
+  onClose,
 }) => {
   return (
     <div className="relative flex flex-col md:flex-row min-h-screen">
@@ -174,7 +174,14 @@ export const BaseBoard: React.FC<
       {/* Modal: Play Again */}
       {showRematchPrompt && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+          <div className="relative bg-white p-8 rounded-lg shadow-lg text-center">
+            {/* Close button - just closes the popup */}
+            <button 
+              className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-800 rounded-full hover:bg-gray-100"
+              onClick={onClose}
+            >
+              ✕
+            </button>
             <h2 className="text-2xl font-bold mb-4">Game Over</h2>
             <div className="flex flex-col gap-4">
               <button
