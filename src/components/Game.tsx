@@ -1,12 +1,14 @@
-// Game.tsx
+
 "use client";
-import { useGamePhase } from "@/context/GamePhaseContext";
+import { useGameStore } from "@/store";
 import { MainMenu } from "./shared/MainMenu";
 import { SinglePlayerGame } from "./SinglePlayerGame/SinglePlayerGame";
 import { MultiPlayerGame } from "./MultiPlayerGame/MultiPlayerGame";
 
 export const Game = () => {
-  const { gameMode, setGameMode, setPhase } = useGamePhase();
+  const gameMode = useGameStore(state => state.gameMode);
+  const setGameMode = useGameStore(state => state.setGameMode);
+  const setPhase = useGameStore(state => state.setPhase);
 
   if (!gameMode) {
     return (
