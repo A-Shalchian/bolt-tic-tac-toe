@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AppProviders } from "@/context/AppProviders";
+// Zustand doesn't require providers
 import { Footer } from "@/homeSections/footer";
 import { Header } from "@/homeSections/Header";
 
@@ -19,7 +19,7 @@ export default function RootLayout({
       <body className={` antialiased`}>
         <Header />
 
-        <AppProviders>{children}</AppProviders>
+        {children}
 
         <Footer />
       </body>
