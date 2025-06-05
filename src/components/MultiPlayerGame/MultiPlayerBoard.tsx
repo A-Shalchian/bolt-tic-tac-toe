@@ -71,7 +71,7 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
       }, 1000);
       return () => clearInterval(timerId);
     }
-  }, [timed, winner, currentTurn, timeLimit]);
+  }, [timed, winner, currentTurn, timeLimit, setCurrentTurn]);
 
   // Handle cell click
   const handleCellClick = (index: number) => {
@@ -207,6 +207,7 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
       renderRightPanel={renderRightPanel}
       showRematchPrompt={showPrompt}
       onRematch={handleRematch}
+      onClose={() => setShowPrompt(false)}
     />
   );
 };
