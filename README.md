@@ -1,6 +1,6 @@
-# Infinite Tic-Tac-Toe
+# Bolt Tic-Tac-Toe
 
-![Infinite Tic-Tac-Toe](public/favicon.ico) Yes I created this...
+![Bolt Tic-Tac-Toe](public/favicon.ico) Yes I created this...
 
 A modern twist on the classic Tic-Tac-Toe game featuring a unique repeating board mechanic. Play against adaptive AI opponents or challenge your friends in real-time multiplayer matches.
 
@@ -31,7 +31,7 @@ A modern twist on the classic Tic-Tac-Toe game featuring a unique repeating boar
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/A-Shalchian/infinitic-tac-toe.git
+   git clone https://github.com/A-Shalchian/bolt-tic-tac-toe.git
    ```
 
 2. Install dependencies:
