@@ -1,17 +1,19 @@
 "use client";
 import React, { useEffect, useCallback } from "react";
 import { getEasyMove, getMediumMove, getHardMove } from "@/utils/botLogic";
-import { ScoreBoard } from "../shared/ScoreBoard";
 import { BaseBoard, useGameBoard } from "../shared/BaseBoard";
+import { SurrenderButton } from "../buttons/SurrenderButton";
+import { MainMenuButton } from "../buttons/MainMenuButton";
+import { ScoreBoard } from "../shared/ScoreBoard";
+
+// Define specific cell types for single player
+type PlayerCell = "HUMAN" | "BOT" | null;
 
 type SinglePlayerBoardProps = {
   difficulty: "easy" | "medium" | "hard";
   playerChar: string;
   botChar: string;
 };
-
-// Define specific cell types for single player
-type PlayerCell = "HUMAN" | "BOT" | null;
 
 export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
   difficulty,
@@ -117,7 +119,6 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
     }
   };
 
-
   // Surrender
   const handleSurrender = () => {
     if (!winner) {
@@ -173,23 +174,17 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
       ) : (
         <p className="mt-2 text-green-600 font-bold">{winner}</p>
       )}
-      {winner && (
-        <button
-          className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded"
-          onClick={() => setShowPrompt(true)}
-        >
-          Play Again
-        </button>
-      )}
     </>
   );
 
   const renderRightPanel = () => (
     <>
+      
+      
       <ScoreBoard />
       <div className="mt-4">
         <p className="font-semibold">
-          Human moves:{" "}
+          Your moves:{" "}
           {player1Moves.map((move) => indexToPosition(move)).join(", ")}
         </p>
         <br />
@@ -213,6 +208,8 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
       showRematchPrompt={showPrompt}
       onRematch={handleRematch}
       onClose={() => setShowPrompt(false)}
+      onShowPrompt={() => setShowPrompt(true)}
+      winner={winner}
     />
   );
 };

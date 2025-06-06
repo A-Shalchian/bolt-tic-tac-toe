@@ -4,6 +4,7 @@ import { SurrenderButton } from "../buttons/SurrenderButton";
 import { ScoreBoard } from "./ScoreBoard";
 import { checkWin } from "@/utils/botLogic";
 import { useGameStore } from "@/store";
+import { MainMenuButton } from "../buttons/MainMenuButton";
 
 export type Cell = string | null;
 
@@ -136,6 +137,8 @@ export const BaseBoard: React.FC<
     showRematchPrompt: boolean;
     onRematch: () => void;
     onClose: () => void;
+    onShowPrompt: () => void;
+    winner?: string | null;
   }
 > = ({
   children,
@@ -146,12 +149,15 @@ export const BaseBoard: React.FC<
   showRematchPrompt,
   onRematch,
   onClose,
+  onShowPrompt,
+  winner,
 }) => {
   return (
     <div className="relative flex flex-col md:flex-row min-h-screen">
-      {/* Surrender Button */}
-      <div className="absolute -top-8 right-4 z-50">
+      {/* Game Buttons */}
+      <div className="absolute -top-8 right-4 z-50 flex flex-row items-center">
         <SurrenderButton onClick={onSurrender} />
+        <MainMenuButton onClick={onShowPrompt} visible={!!winner} />
       </div>
 
       {/* Left Panel */}
@@ -174,10 +180,10 @@ export const BaseBoard: React.FC<
       {/* Modal: Play Again */}
       {showRematchPrompt && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="relative bg-white p-8 rounded-lg shadow-lg text-center">
+          <div className="relative bg-white p-32 rounded-lg shadow-lg text-center">
             {/* Close button - just closes the popup */}
             <button 
-              className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-800 rounded-full hover:bg-gray-100"
+              className="absolute top-2 right-2 w-12 h-12 flex items-center justify-center text-gray-500 hover:text-gray-800 rounded-full hover:bg-gray-100"
               onClick={onClose}
             >
               ✕
@@ -185,16 +191,16 @@ export const BaseBoard: React.FC<
             <h2 className="text-2xl font-bold mb-4">Game Over</h2>
             <div className="flex flex-col gap-4">
               <button
-                className="px-4 py-2 bg-green-500 text-white rounded"
+                className="px-8 py-2 bg-green-500 text-white rounded"
                 onClick={onRematch}
               >
-                Rematch
+                <p className="font-semibold">Rematch</p>
               </button>
               <button
-                className="px-4 py-2 bg-gray-500 text-white rounded"
+                className="px-8 py-2 bg-gray-500 text-white rounded"
                 onClick={() => window.location.reload()}
               >
-                Quit
+                <p className="font-semibold">Quit</p>
               </button>
             </div>
           </div>
