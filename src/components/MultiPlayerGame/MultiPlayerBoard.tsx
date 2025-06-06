@@ -208,6 +208,8 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
       showRematchPrompt={showPrompt}
       onRematch={handleRematch}
       onClose={() => setShowPrompt(false)}
+      onShowPrompt={() => setShowPrompt(true)}
+      winner={winner}
     />
   );
 };
