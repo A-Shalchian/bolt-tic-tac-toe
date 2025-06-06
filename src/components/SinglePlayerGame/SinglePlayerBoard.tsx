@@ -121,8 +121,8 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
   // Surrender
   const handleSurrender = () => {
     if (!winner) {
-      setWinner("Bot wins by surrender! +2 points");
-      setPlayer2Score(player2Score + 2);
+      setWinner("Bot wins by surrender! +1 points");
+      setPlayer2Score(player2Score + 1);
     }
   };
 
