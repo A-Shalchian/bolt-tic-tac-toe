@@ -14,14 +14,14 @@ export const PageTitleManager: React.FC = () => {
   
   useEffect(() => {
     // Set the default title based on current game state
-    let defaultTitle = "Infinite Tic-Tac-Toe";
+    let defaultTitle = "Bolt Tic-Tac-Toe";
     
     if (phase === "game") {
-      defaultTitle = `${gameMode === "single" ? "Single Player" : "Multiplayer"} Game - Infinite Tic-Tac-Toe`;
+      defaultTitle = `${gameMode === "single" ? "Single Player" : "Multiplayer"} Game - Bolt Tic-Tac-Toe`;
     } else if (phase === "mainMenu") {
-      defaultTitle = "Infinite Tic-Tac-Toe";
+      defaultTitle = "Bolt Tic-Tac-Toe";
     } else {
-      defaultTitle = `Game Setup - Infinite Tic-Tac-Toe`;
+      defaultTitle = `Game Setup - Bolt Tic-Tac-Toe`;
     }
     
     // Set the document title
