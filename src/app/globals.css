@@ -7,3 +7,12 @@
     @apply text-white text-xl font-extrabold tracking-widest rounded-lg;
   }
 }
+
+@keyframes flashBackground {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: #fef08a; } /* Tailwind yellow-200 */
+}
+
+.flash-highlight {
+  animation: flashBackground 1s infinite;
+}
