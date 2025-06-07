@@ -5,7 +5,7 @@ import { Footer } from "@/homeSections/footer";
 import { Header } from "@/homeSections/Header";
 
 export const metadata: Metadata = {
-  title: "Bolt Tic-Tac-Toe | Endless Strategy Game",
+  title: "Bolt Tic-Tac-Toe",
   description: "Play Bolt Tic-Tac-Toe with a unique repeating board mechanic! Challenge adaptive AI opponents or play with friends in real-time. Customizable difficulty, timed matches, and innovative twist on classic gameplay."
 };
 
