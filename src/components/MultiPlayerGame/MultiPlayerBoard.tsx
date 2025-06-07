@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import { ScoreBoard } from "../shared/ScoreBoard";
 import { BaseBoard, useGameBoard } from "../shared/BaseBoard";
 
+
+
 type MultiPlayerBoardProps = {
   timed: boolean;
   timeLimit: number;
@@ -148,7 +150,7 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
         key={index}
         onClick={() => handleCellClick(index)}
         className={`w-20 h-20 md:w-32 md:h-32 border-4 border-gray-400 flex items-center justify-center text-3xl cursor-pointer ${
-          highlight ? "bg-yellow-200" : ""
+          highlight ? "flash-highlight" : ""
         }`}
       >
         {content}

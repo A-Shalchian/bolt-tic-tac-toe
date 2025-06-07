@@ -2,9 +2,9 @@
 import React, { useEffect, useCallback } from "react";
 import { getEasyMove, getMediumMove, getHardMove } from "@/utils/botLogic";
 import { BaseBoard, useGameBoard } from "../shared/BaseBoard";
-import { SurrenderButton } from "../buttons/SurrenderButton";
-import { MainMenuButton } from "../buttons/MainMenuButton";
 import { ScoreBoard } from "../shared/ScoreBoard";
+
+
 
 // Define specific cell types for single player
 type PlayerCell = "HUMAN" | "BOT" | null;
@@ -155,7 +155,7 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
         key={index}
         onClick={() => handleCellClick(index)}
         className={`w-20 h-20 md:w-32 md:h-32 border-4 border-gray-400 flex items-center justify-center text-3xl cursor-pointer ${
-          highlight ? "bg-yellow-200" : ""
+          highlight ? "flash-highlight" : ""
         }`}
       >
         {content}
