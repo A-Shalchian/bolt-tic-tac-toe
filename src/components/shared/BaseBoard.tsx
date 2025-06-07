@@ -180,7 +180,7 @@ export const BaseBoard: React.FC<
       {/* Modal: Play Again */}
       {showRematchPrompt && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="relative bg-white p-32 rounded-lg shadow-lg text-center">
+          <div className="relative bg-white p-28 rounded-lg shadow-lg text-center">
             {/* Close button - just closes the popup */}
             <button 
               className="absolute top-2 right-2 w-12 h-12 flex items-center justify-center text-gray-500 hover:text-gray-800 rounded-full hover:bg-gray-100"
@@ -188,25 +188,24 @@ export const BaseBoard: React.FC<
             >
               ✕
             </button>
-            <h2 className="text-2xl font-bold mb-4">Game Over</h2>
+            <h2 className="text-3xl font-bold mb-4 absolute top-10 left-1/2 transform -translate-x-1/2">Game Over</h2>
             <div className="flex flex-col gap-4">
               <button
-                className="px-8 py-2 bg-green-500 text-white rounded"
+                className="px-12 py-3 bg-emerald-500 text-white rounded hover:bg-emerald-600"
                 onClick={onRematch}
               >
-                <p className="font-semibold">Rematch</p>
+                <p className="font-semibold text-lg">Rematch</p>
               </button>
               <button
-                className="px-8 py-2 bg-gray-500 text-white rounded"
+                className="px-12 py-3 bg-gray-500 text-white rounded hover:bg-gray-600"
                 onClick={() => window.location.reload()}
               >
-                <p className="font-semibold">Quit</p>
+                <p className="font-semibold text-lg">Quit</p>
               </button>
             </div>
           </div>
         </div>
       )}
-
       {children}
     </div>
   );
