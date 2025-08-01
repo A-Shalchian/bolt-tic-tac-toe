@@ -1,8 +1,10 @@
 "use client";
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, memo } from "react";
 import { getEasyMove, getMediumMove, getHardMove } from "@/utils/botLogic";
 import { BaseBoard, useGameBoard } from "../shared/BaseBoard";
 import { ScoreBoard } from "../shared/ScoreBoard";
+import { useBoardCellTouch } from "@/hooks/useMobileTouch";
+import { useStableCallback, useRenderPerformance } from "@/hooks/usePerformance";
 
 
 
@@ -15,11 +17,13 @@ type SinglePlayerBoardProps = {
   botChar: string;
 };
 
-export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
+export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = memo(({
   difficulty,
   playerChar,
   botChar,
 }) => {
+  // Performance monitoring in development
+  useRenderPerformance('SinglePlayerBoard');
   const {
     board,
     player1Moves,
@@ -101,8 +105,8 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
     }
   }, [currentTurn, winner, makeBotMove]);
 
-  // Human clicks a cell
-  const handleCellClick = (index: number) => {
+  // Human clicks a cell - optimized with useCallback
+  const handleCellClick = useCallback((index: number) => {
     if (winner || currentTurn !== "HUMAN" || board[index] !== null) return;
 
     const hasWon = updateMoves(
@@ -117,15 +121,15 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
     if (!hasWon) {
       setCurrentTurn("BOT");
     }
-  };
+  }, [winner, currentTurn, board, updateMoves, player1Moves, setPlayer1Moves, setPlayer1Score, player1Score, setCurrentTurn]);
 
-  // Surrender
-  const handleSurrender = () => {
+  // Surrender - optimized with useCallback
+  const handleSurrender = useCallback(() => {
     if (!winner) {
       setWinner("Bot wins by surrender! +1 points");
       setPlayer2Score(player2Score + 1);
     }
-  };
+  }, [winner, setWinner, setPlayer2Score, player2Score]);
 
   // Render cell
   const renderCell = (index: number) => {
@@ -212,4 +216,6 @@ export const SinglePlayerBoard: React.FC<SinglePlayerBoardProps> = ({
       winner={winner}
     />
   );
-};
+});
+
+SinglePlayerBoard.displayName = 'SinglePlayerBoard';
