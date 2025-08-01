@@ -153,28 +153,46 @@ export const BaseBoard: React.FC<
   winner,
 }) => {
   return (
-    <div className="relative flex flex-col md:flex-row min-h-screen">
-      {/* Game Buttons */}
-      <div className="absolute -top-8 right-4 z-50 flex flex-row items-center">
+    <div className="relative flex flex-col lg:flex-row min-h-screen bg-gray-50">
+      {/* Mobile-optimized Game Buttons */}
+      <div className="absolute top-2 right-2 md:-top-8 md:right-4 z-50 flex flex-row items-center gap-2">
         <SurrenderButton onClick={onSurrender} />
         <MainMenuButton onClick={onShowPrompt} visible={!!winner} />
       </div>
 
-      {/* Left Panel */}
-      <div className="w-full md:w-1/4 p-4 border-b md:border-b-0 md:border-r">
-        {renderLeftPanel()}
-      </div>
-
-      {/* Center: Board */}
-      <div className="w-full md:w-2/4 p-4 flex justify-center items-start">
-        <div className="grid grid-cols-3 gap-2">
-          {Array.from({ length: 9 }).map((_, i) => renderCell(i))}
+      {/* Mobile-first layout: Board first on small screens */}
+      <div className="flex flex-col lg:flex-row w-full">
+        {/* Left Panel - Hidden on mobile, shown on larger screens */}
+        <div className="hidden lg:block lg:w-1/4 p-4 border-r border-gray-200 bg-white">
+          {renderLeftPanel()}
         </div>
-      </div>
 
-      {/* Right Panel */}
-      <div className="w-full md:w-1/4 p-4 border-t md:border-t-0 md:border-l">
-        {renderRightPanel()}
+        {/* Center: Board - Full width on mobile */}
+        <div className="w-full lg:w-2/4 p-2 md:p-4 flex flex-col items-center">
+          {/* Mobile info panel - shown only on small screens */}
+          <div className="lg:hidden w-full mb-4 p-3 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="text-sm">
+              {renderLeftPanel()}
+            </div>
+          </div>
+          
+          {/* Game Board */}
+          <div className="grid grid-cols-3 gap-1 md:gap-2 max-w-sm md:max-w-md lg:max-w-lg mx-auto">
+            {Array.from({ length: 9 }).map((_, i) => renderCell(i))}
+          </div>
+          
+          {/* Mobile score panel - shown only on small screens */}
+          <div className="lg:hidden w-full mt-4 p-3 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="text-sm">
+              {renderRightPanel()}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Panel - Hidden on mobile, shown on larger screens */}
+        <div className="hidden lg:block lg:w-1/4 p-4 border-l border-gray-200 bg-white">
+          {renderRightPanel()}
+        </div>
       </div>
 
       {/* Modal: Play Again */}
