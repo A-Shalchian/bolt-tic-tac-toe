@@ -1,34 +1,33 @@
 
 "use client";
+import React, { memo, useCallback } from 'react';
 import { useGameStore } from "@/store";
 import { MainMenu } from "./shared/MainMenu";
 import { SinglePlayerGame } from "./SinglePlayerGame/SinglePlayerGame";
 import { MultiPlayerGame } from "./MultiPlayerGame/MultiPlayerGame";
 import { PageTitleManager } from "./PageTitleManager";
 
-export const Game = () => {
+export const Game = memo(() => {
   const gameMode = useGameStore(state => state.gameMode);
   const setGameMode = useGameStore(state => state.setGameMode);
   const setPhase = useGameStore(state => state.setPhase);
-  
-  // Include the PageTitleManager component that handles dynamic title changes
-  // when users switch tabs
+
+  // Memoize the mode selection handler to prevent unnecessary re-renders
+  const handleModeSelect = useCallback((mode: typeof gameMode) => {
+    setGameMode(mode);
+    // Set the initial phase based on the game mode
+    if (mode === "single") {
+      setPhase("difficultySelection");
+    } else if (mode === "multi") {
+      setPhase("timeOptionSelection");
+    }
+  }, [setGameMode, setPhase]);
 
   if (!gameMode) {
     return (
       <>
         <PageTitleManager />
-        <MainMenu
-        onModeSelect={(mode) => {
-          setGameMode(mode);
-          // Set the initial phase based on the game mode
-          if (mode === "single") {
-            setPhase("difficultySelection");
-          } else if (mode === "multi") {
-            setPhase("timeOptionSelection");
-          }
-        }}
-      />
+        <MainMenu onModeSelect={handleModeSelect} />
       </>
     );
   }
@@ -48,4 +47,14 @@ export const Game = () => {
       </>
     );
   }
-};
+
+  // Fallback for unexpected game modes
+  return (
+    <>
+      <PageTitleManager />
+      <MainMenu onModeSelect={handleModeSelect} />
+    </>
+  );
+});
+
+Game.displayName = 'Game';
