@@ -124,8 +124,14 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = memo(({
     }
   }, [winner, currentTurn, setWinner, setPlayer2Score, player2Score, setPlayer1Score, player1Score]);
 
-  // Render cell
-  const renderCell = (index: number) => {
+  const handleCellClickWithFeedback = useCallback((index: number) => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50); 
+    }
+    handleCellClick(index);
+  }, [handleCellClick]);
+
+  const renderCell = useCallback((index: number) => {
     let content = "";
     let highlight = false;
     if (board[index] === "P1") {
@@ -148,18 +154,51 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = memo(({
       }
     }
 
+    const isDisabled = winner !== null || board[index] !== null;
+    const isPlayer1Turn = currentTurn === "P1";
+    const isPlayer2Turn = currentTurn === "P2";
+    
     return (
       <div
         key={index}
-        onClick={() => handleCellClick(index)}
-        className={`w-20 h-20 md:w-32 md:h-32 border-4 border-gray-400 flex items-center justify-center text-3xl cursor-pointer ${
-          highlight ? "flash-highlight" : ""
-        }`}
+        data-cell-index={index}
+        onClick={() => handleCellClickWithFeedback(index)}
+        onTouchStart={(e) => {
+          if (!isDisabled) {
+            const target = e.currentTarget;
+            target.style.transform = 'scale(0.95)';
+            target.style.transition = 'transform 0.1s ease';
+          }
+        }}
+        onTouchEnd={(e) => {
+          const target = e.currentTarget;
+          target.style.transform = '';
+        }}
+        onTouchCancel={(e) => {
+          const target = e.currentTarget;
+          target.style.transform = '';
+        }}
+        className={`
+          w-20 h-20 md:w-32 md:h-32 
+          border-4 border-gray-400 
+          flex items-center justify-center 
+          text-3xl font-bold
+          select-none
+          transition-all duration-150 ease-in-out
+          ${isDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-100 active:bg-gray-200'}
+          ${highlight ? "flash-highlight" : ""}
+          ${content && isPlayer1Turn ? 'text-blue-600' : content && isPlayer2Turn ? 'text-red-600' : 'hover:text-gray-400'}
+        `}
+        style={{
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'none'
+        }}
       >
         {content}
       </div>
     );
-  };
+  }, [board, player1Char, player2Char, currentTurn, player1Moves, player2Moves, winner, handleCellClickWithFeedback]);
 
   const renderLeftPanel = () => (
     <>
