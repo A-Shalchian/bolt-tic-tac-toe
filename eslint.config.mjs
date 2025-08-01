@@ -16,6 +16,13 @@ const eslintConfig = [
       "@typescript-eslint/no-unused-vars": "off",
     },
   }),
+  {
+    files: ["jest.config.js", "jest.setup.js"],
+    rules: {
+      "@typescript-eslint/no-var-requires": "off",
+      "import/no-commonjs": "off",
+    },
+  },
 ];
 
 export default eslintConfig;
