@@ -149,16 +149,15 @@ describe('Game Component', () => {
     it('should handle invalid game mode gracefully', () => {
       mockStore.gameMode = 'invalid' as unknown as typeof mockStore.gameMode
       
-      const { container } = render(<Game />)
+      render(<Game />)
       
       // Should not render any game components for invalid mode
       expect(screen.queryByTestId('single-player-game')).not.toBeInTheDocument()
       expect(screen.queryByTestId('multiplayer-game')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('main-menu')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('page-title-manager')).not.toBeInTheDocument()
       
-      // Component should render nothing (empty div)
-      expect(container.firstChild).toBeNull()
+      // Should fall back to main menu for invalid modes
+      expect(screen.getByTestId('main-menu')).toBeInTheDocument()
+      expect(screen.getByTestId('page-title-manager')).toBeInTheDocument()
     })
   })
 
