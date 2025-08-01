@@ -3,19 +3,20 @@
 import React, { memo, useCallback } from 'react';
 import { useGameStore } from "@/store";
 import { MainMenu } from "./shared/MainMenu";
-import { SinglePlayerGame } from "./SinglePlayerGame/SinglePlayerGame";
-import { MultiPlayerGame } from "./MultiPlayerGame/MultiPlayerGame";
+import { SafeLazySinglePlayerGame, SafeLazyMultiPlayerGame } from "./lazy/LazyGameComponents";
 import { PageTitleManager } from "./PageTitleManager";
+import { useRenderPerformance } from "@/hooks/usePerformance";
 
 export const Game = memo(() => {
+  // Performance monitoring in development
+  useRenderPerformance('Game');
+  
   const gameMode = useGameStore(state => state.gameMode);
   const setGameMode = useGameStore(state => state.setGameMode);
   const setPhase = useGameStore(state => state.setPhase);
 
-  // Memoize the mode selection handler to prevent unnecessary re-renders
   const handleModeSelect = useCallback((mode: typeof gameMode) => {
     setGameMode(mode);
-    // Set the initial phase based on the game mode
     if (mode === "single") {
       setPhase("difficultySelection");
     } else if (mode === "multi") {
@@ -36,19 +37,18 @@ export const Game = memo(() => {
     return (
       <>
         <PageTitleManager />
-        <SinglePlayerGame />
+        <SafeLazySinglePlayerGame />
       </>
     );
   } else if (gameMode === "multi") {
     return (
       <>
         <PageTitleManager />
-        <MultiPlayerGame />
+        <SafeLazyMultiPlayerGame />
       </>
     );
   }
 
-  // Fallback for unexpected game modes
   return (
     <>
       <PageTitleManager />
