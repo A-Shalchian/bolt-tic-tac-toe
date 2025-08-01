@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "../styles/mobile.css";
 import React from "react";
 import { Footer } from "@/homeSections/footer";
 import { Header } from "@/homeSections/Header";
