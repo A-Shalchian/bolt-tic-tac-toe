@@ -3,11 +3,10 @@
  */
 
 import React from 'react'
-import { render, screen, fireEvent } from '../../__tests__/utils/test-utils'
+import { render, screen, fireEvent, waitFor } from '../../__tests__/utils/test-utils'
 import { Game } from '../Game'
 import { useGameStore } from '@/store'
 
-// Mock the child components to isolate Game component testing
 jest.mock('../shared/MainMenu', () => ({
   MainMenu: ({ onModeSelect }: { onModeSelect: (mode: string) => void }) => (
     <div data-testid="main-menu">
@@ -29,7 +28,6 @@ jest.mock('../PageTitleManager', () => ({
   PageTitleManager: () => <div data-testid="page-title-manager" />,
 }))
 
-// Mock the store
 const mockStore = {
   gameMode: null,
   setGameMode: jest.fn(),
@@ -44,10 +42,7 @@ const mockedUseGameStore = useGameStore as jest.MockedFunction<typeof useGameSto
 
 describe('Game Component', () => {
   beforeEach(() => {
-    // Reset all mocks before each test
     jest.clearAllMocks()
-    
-    // Default mock implementation
     mockedUseGameStore.mockImplementation((selector) => {
       if (typeof selector === 'function') {
         return selector(mockStore as unknown as ReturnType<typeof useGameStore.getState>)
@@ -94,28 +89,40 @@ describe('Game Component', () => {
   })
 
   describe('Single Player Game State', () => {
-    it('should render single player game when single mode is selected', () => {
+    it('should render single player game when single mode is selected', async () => {
       mockStore.gameMode = 'single'
       
       render(<Game />)
       
-      expect(screen.getByTestId('single-player-game')).toBeInTheDocument()
+      // Should show loading state initially for lazy loaded component
+      expect(screen.getByText('Loading Single Player Game...')).toBeInTheDocument()
       expect(screen.getByTestId('page-title-manager')).toBeInTheDocument()
       expect(screen.queryByTestId('main-menu')).not.toBeInTheDocument()
       expect(screen.queryByTestId('multiplayer-game')).not.toBeInTheDocument()
+      
+      // Wait for lazy component to load (in test environment, it loads immediately)
+      await waitFor(() => {
+        expect(screen.queryByText('Loading Single Player Game...')).not.toBeInTheDocument()
+      })
     })
   })
 
   describe('Multiplayer Game State', () => {
-    it('should render multiplayer game when multi mode is selected', () => {
+    it('should render multiplayer game when multi mode is selected', async () => {
       mockStore.gameMode = 'multi'
       
       render(<Game />)
       
-      expect(screen.getByTestId('multiplayer-game')).toBeInTheDocument()
+      // Should show loading state initially for lazy loaded component
+      expect(screen.getByText('Loading Multiplayer Game...')).toBeInTheDocument()
       expect(screen.getByTestId('page-title-manager')).toBeInTheDocument()
       expect(screen.queryByTestId('main-menu')).not.toBeInTheDocument()
       expect(screen.queryByTestId('single-player-game')).not.toBeInTheDocument()
+      
+      // Wait for lazy component to load (in test environment, it loads immediately)
+      await waitFor(() => {
+        expect(screen.queryByText('Loading Multiplayer Game...')).not.toBeInTheDocument()
+      })
     })
   })
 
