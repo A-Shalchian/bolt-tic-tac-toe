@@ -1,7 +1,8 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, memo } from "react";
 import { ScoreBoard } from "../shared/ScoreBoard";
 import { BaseBoard, useGameBoard } from "../shared/BaseBoard";
+import { useRenderPerformance } from "@/hooks/usePerformance";
 
 
 
@@ -19,12 +20,14 @@ type MultiPlayerBoardProps = {
  * - Optional timer per turn if `timed` is true.
  * - Surrender button: whichever player's turn it is, the other player wins.
  */
-export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
+export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = memo(({
   timed,
   timeLimit,
   player1Char,
   player2Char,
 }) => {
+  // Performance monitoring in development
+  useRenderPerformance('MultiPlayerBoard');
   const {
     board,
     player1Moves,
@@ -75,8 +78,8 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
     }
   }, [timed, winner, currentTurn, timeLimit, setCurrentTurn]);
 
-  // Handle cell click
-  const handleCellClick = (index: number) => {
+  // Handle cell click - optimized with useCallback
+  const handleCellClick = useCallback((index: number) => {
     if (winner) return;
     if (board[index] !== null) return;
 
@@ -107,10 +110,10 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
         setCurrentTurn("P1");
       }
     }
-  };
+  }, [winner, board, currentTurn, updateMoves, player1Moves, setPlayer1Moves, setPlayer1Score, player1Score, player2Moves, setPlayer2Moves, setPlayer2Score, player2Score, setCurrentTurn]);
 
-  // Surrender
-  const handleSurrender = () => {
+  // Surrender - optimized with useCallback
+  const handleSurrender = useCallback(() => {
     if (winner) return;
     if (currentTurn === "P1") {
       setWinner("Player 2 wins by surrender!");
@@ -119,7 +122,7 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
       setWinner("Player 1 wins by surrender!");
       setPlayer1Score(player1Score + 1);
     }
-  };
+  }, [winner, currentTurn, setWinner, setPlayer2Score, player2Score, setPlayer1Score, player1Score]);
 
   // Render cell
   const renderCell = (index: number) => {
@@ -214,4 +217,6 @@ export const MultiPlayerBoard: React.FC<MultiPlayerBoardProps> = ({
       winner={winner}
     />
   );
-};
+});
+
+MultiPlayerBoard.displayName = 'MultiPlayerBoard';
