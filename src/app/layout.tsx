@@ -3,6 +3,7 @@ import "./globals.css";
 import React from "react";
 import { Footer } from "@/homeSections/footer";
 import { Header } from "@/homeSections/Header";
+import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "Bolt Tic-Tac-Toe",
@@ -17,11 +18,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Header />
+        <ErrorBoundary>
+          <Header />
 
-        {children}
+          {children}
 
-        <Footer />
+          <Footer />
+        </ErrorBoundary>
       </body>
     </html>
   );
